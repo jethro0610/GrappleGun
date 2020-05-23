@@ -1,6 +1,10 @@
 package com.jet.grapplegun.proxy;
 
 import com.jet.grapplegun.network.GrapplePacketManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -22,6 +26,9 @@ public class ServerProxy extends CommonProxy {
     public void postInit(FMLPostInitializationEvent event) {
         super.postInit(event);
     }
+
+    @Override
+    public World getWorld() { return FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld(); }
 
     @Mod.EventBusSubscriber
     public static class ServerRegistry {

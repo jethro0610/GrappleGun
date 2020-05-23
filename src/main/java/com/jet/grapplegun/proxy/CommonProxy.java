@@ -1,8 +1,6 @@
 package com.jet.grapplegun.proxy;
 
-import com.jet.grapplegun.EntityGrappleVisual;
-import com.jet.grapplegun.GrappleGunMod;
-import com.jet.grapplegun.ItemGrappleGun;
+import com.jet.grapplegun.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
@@ -17,7 +15,7 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 
 public class CommonProxy {
-    protected static Item itemGrappleGun = new ItemGrappleGun(
+    /*protected static Item itemGrappleGun = new ItemGrappleGun(
             "grapple_gun",
             20,
             10,
@@ -25,7 +23,9 @@ public class CommonProxy {
             150,
             150,
             150,
-            100);
+            100);*/
+
+    protected static Item itemGrapple = new ItemGrapple("grapple", 20, 0.5);
     public void preInit(FMLPreInitializationEvent event) {
     }
 
@@ -47,19 +47,26 @@ public class CommonProxy {
     public static class CommonRegistry {
         @SubscribeEvent
         public static void registerItems(RegistryEvent.Register<Item> event){
-            event.getRegistry().registerAll(itemGrappleGun);
+            event.getRegistry().registerAll(itemGrapple);
         }
 
         @SubscribeEvent
         public static void registerEntity(RegistryEvent.Register<EntityEntry> event) {
-            EntityEntry entry = EntityEntryBuilder.create()
+            /*EntityEntry grapplepoint = EntityEntryBuilder.create()
                     .entity(EntityGrappleVisual.class)
                     .id(new ResourceLocation(GrappleGunMod.MODID + ":grapplepoint"), 144)
                     .name("grapplepoint")
                     .tracker(64, 20, false)
+                    .build();*/
+
+            EntityEntry grapplepuller = EntityEntryBuilder.create()
+                    .entity(EntityGrapplePuller.class)
+                    .id(new ResourceLocation(GrappleGunMod.MODID + ":grapplepuller"), 144)
+                    .name("grapplepuller")
+                    .tracker(64, 20, false)
                     .build();
 
-            event.getRegistry().register(entry);
+            event.getRegistry().registerAll(grapplepuller);
         }
 
 

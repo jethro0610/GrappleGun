@@ -56,12 +56,10 @@ public class EntityGrappleVisual extends Entity {
 
     @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
-
     }
 
     @Override
     protected void writeEntityToNBT(NBTTagCompound compound) {
-
     }
 
     @Override

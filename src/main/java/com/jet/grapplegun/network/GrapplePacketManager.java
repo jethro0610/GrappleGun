@@ -21,6 +21,7 @@ public class GrapplePacketManager {
         INSTANCE.registerMessage(S_CreateGrappleVisual.CreateGrappleVisualManager.class, S_CreateGrappleVisual.class, packetID++, Side.SERVER);
         INSTANCE.registerMessage(S_RemoveGrappleVisual.RemoveGrappleVisualManager.class, S_RemoveGrappleVisual.class, packetID++, Side.SERVER);
         INSTANCE.registerMessage(S_UpdateSticking.S_UpdateStickingManager.class, S_UpdateSticking.class, packetID++, Side.SERVER);
+        INSTANCE.registerMessage(S_RequestPull.Handler.class, S_RequestPull.class, packetID++, Side.SERVER);
     }
 
     public static void registerServerMessages() {
@@ -36,5 +37,6 @@ public class GrapplePacketManager {
         INSTANCE.registerMessage(S_CreateGrappleVisual.CreateGrappleVisualManager.class, S_CreateGrappleVisual.class, packetID++, Side.SERVER);
         INSTANCE.registerMessage(S_RemoveGrappleVisual.RemoveGrappleVisualManager.class, S_RemoveGrappleVisual.class, packetID++, Side.SERVER);
         INSTANCE.registerMessage(S_UpdateSticking.S_UpdateStickingManager.class, S_UpdateSticking.class, packetID++, Side.SERVER);
+        INSTANCE.registerMessage(S_RequestPull.Handler.class, S_RequestPull.class, packetID++, Side.SERVER);
     }
 }
