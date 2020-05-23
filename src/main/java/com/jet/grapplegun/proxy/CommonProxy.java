@@ -3,7 +3,6 @@ package com.jet.grapplegun.proxy;
 import com.jet.grapplegun.EntityGrappleVisual;
 import com.jet.grapplegun.GrappleGunMod;
 import com.jet.grapplegun.ItemGrappleGun;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
@@ -16,8 +15,6 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
-
-import java.util.List;
 
 public class CommonProxy {
     protected static Item itemGrappleGun = new ItemGrappleGun(

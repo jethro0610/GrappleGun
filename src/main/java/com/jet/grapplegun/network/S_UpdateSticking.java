@@ -1,14 +1,8 @@
 package com.jet.grapplegun.network;
 
-import com.jet.grapplegun.GrappleGunMod;
-import com.jet.grapplegun.ItemGrappleGun;
-import com.jet.grapplegun.proxy.ServerProxy;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;

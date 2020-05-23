@@ -3,7 +3,6 @@ package com.jet.grapplegun;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
-import org.lwjgl.util.Color;
 
 public class EntityGrappleVisual extends Entity {
     public Entity sh_attachEntity = null;

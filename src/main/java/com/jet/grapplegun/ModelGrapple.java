@@ -3,7 +3,6 @@ package com.jet.grapplegun;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Vec3d;
 
 public class ModelGrapple extends ModelBase {
     public ModelRenderer renderer = new ModelRenderer(this, 0 ,0);
