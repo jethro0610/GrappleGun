@@ -100,6 +100,7 @@ public class ItemGrappleGun extends Item {
             Entity hitEntity = holderRaycastEntities(playerIn, worldIn);
             RayTraceResult rayResult = worldIn.rayTraceBlocks(playerIn.getPositionEyes(1), playerIn.getPositionEyes(1).add(playerIn.getLookVec().scale(sh_pullRange)));
 
+            // Get the nearest raycast
             double entityDistance = Double.POSITIVE_INFINITY;
             if(hitEntity != null)
                 entityDistance = hitEntity.getPositionVector().distanceTo(playerIn.getPositionVector());
@@ -108,6 +109,7 @@ public class ItemGrappleGun extends Item {
             if(rayResult != null)
                 rayDistance = rayResult.hitVec.distanceTo(playerIn.getPositionVector());
 
+            // Create the visual and queue the pull
             if(entityDistance == Double.POSITIVE_INFINITY && rayDistance == Double.POSITIVE_INFINITY){
                 holderCreateVisual(playerIn, playerIn.getPositionEyes(1).add(playerIn.getLookVec().scale(sh_pullRange)), worldIn, false);
                 return new ActionResult<ItemStack>(EnumActionResult.PASS, playerIn.getHeldItem(handIn));
@@ -143,6 +145,7 @@ public class ItemGrappleGun extends Item {
     }
 
     private void holderUpdate(World worldIn, Entity entityIn){
+        // Reset cooldown
         if(h_cooldown > 0)
             h_cooldown--;
 
@@ -151,6 +154,7 @@ public class ItemGrappleGun extends Item {
             launchVel = launchVel.scale(1/launchVel.lengthVector()).scale(sh_pullSpeed);
             entityIn.setVelocity(launchVel.x, launchVel.y, launchVel.z);
 
+            // Stop pulling the player
             if(entityIn.getPositionVector().distanceTo(h_pullLocation) < sh_pullSpeed) {
                 h_pulling = false;
                 if (!Keyboard.isKeyDown(Keyboard.KEY_SPACE) && !holderIsOnGround(entityIn, worldIn, 2.5, launchVel.y)) {
@@ -167,12 +171,14 @@ public class ItemGrappleGun extends Item {
             entityIn.setVelocity(pullVel.x,pullVel.y,pullVel.z);
             entityIn.setNoGravity(true);
 
+            // Move up and down the grapple
             if (entityIn.isSneaking())
                 h_stickHeight -= 0.1;
 
             if(Keyboard.isKeyDown(Keyboard.KEY_SPACE))
                 h_stickHeight += 0.1;
 
+            // Hop off the grapple
             if(h_stickHeight > 0.2) {
                 GrapplePacketManager.INSTANCE.sendToServer(new S_UpdateSticking(entityIn));
                 entityIn.setNoGravity(false);
@@ -181,7 +187,7 @@ public class ItemGrappleGun extends Item {
                 h_stickHeight = 0;
                 holderRemoveVisual();
             }
-
+            // Hop down the grapple
             if (holderIsOnGround(entityIn, worldIn, 1, 0 )) {
                 GrapplePacketManager.INSTANCE.sendToServer(new S_UpdateSticking(entityIn));
                 entityIn.setVelocity(0, 0, 0);
@@ -203,6 +209,7 @@ public class ItemGrappleGun extends Item {
             s_pullEntity.velocityChanged = true;
 
             if(s_pullEntity.getPositionVector().distanceTo(entityIn.getPositionEyes(1)) < sh_pullSpeed) {
+                // Tell the player to stop pulling the enttiy and tell other client to destroy visual
                 GrapplePacketManager.INSTANCE.sendTo(new C_StopEntityPull(this), (EntityPlayerMP)entityIn);
                 GrapplePacketManager.INSTANCE.sendToAll(new C_DestroyGrappleVisual(this));
 
@@ -217,6 +224,7 @@ public class ItemGrappleGun extends Item {
     }
 
     private void pulledPlayerUpdate(){
+        // Pull a player to the grapple (Doesn't work since remote clients cant tick an item)
         Vec3d pullVel = getPullVel(rc_pullToPlayer.getPositionEyes(1), rc_pullPlayer.getPositionVector(), sh_pullSpeed);
         rc_pullPlayer.setVelocity(pullVel.x, pullVel.y, pullVel.z);
 

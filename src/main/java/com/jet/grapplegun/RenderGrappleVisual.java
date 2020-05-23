@@ -27,6 +27,7 @@ public class RenderGrappleVisual extends RenderEntity {
     public void doRender(Entity entity, double x, double y, double z, float entityYaw, float partialTicks) {
         grappleVisual = (EntityGrappleVisual) entity;
 
+        // Calculate the end point of the visual
         double pX = getActualPos(grappleVisual.sh_owningEntity.prevPosX, grappleVisual.sh_owningEntity.posX, partialTicks);
         double pY = getActualPos(grappleVisual.sh_owningEntity.prevPosY, grappleVisual.sh_owningEntity.posY, partialTicks) + grappleVisual.sh_owningEntity.getEyeHeight() / 1.25;
         double pZ = getActualPos(grappleVisual.sh_owningEntity.prevPosZ, grappleVisual.sh_owningEntity.posZ, partialTicks);
@@ -50,6 +51,7 @@ public class RenderGrappleVisual extends RenderEntity {
         Color c = new Color(grappleVisual.sh_colorR, grappleVisual.sh_colorG, grappleVisual.sh_colorB, 255);
         GL11.glColor4d(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
 
+        // Shrink the line width based on the distance of the camera
         float cameraDist = (float) renderManager.getDistanceToCamera(x, y, z);
         if(cameraDist > 12)
             cameraDist = 12;
@@ -60,8 +62,8 @@ public class RenderGrappleVisual extends RenderEntity {
         BufferBuilder vertexbuffer = tessellator.getBuffer();
         vertexbuffer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR);
 
+        // Draw the rope in segments
         int segments = (int)Math.floor((vectorToPlayer.lengthVector() * (1 - actualDistMult)) / SEGMENT_LENGTH);
-
         int colorAdd = 0;
         for(int i = 0; i <= segments; i++) {
             Vec3d segVec = vectorToPlayer.scale(1/vectorToPlayer.lengthVector());
@@ -104,6 +106,7 @@ public class RenderGrappleVisual extends RenderEntity {
     }
 }
 
+// Old draw rope code
 /*for(int i = 0; i <= segments; i++) {
     Vec3d dirVec = vectorToPlayer.scale(1/vectorToPlayer.lengthVector());
     dirVec = dirVec.scale(i);
