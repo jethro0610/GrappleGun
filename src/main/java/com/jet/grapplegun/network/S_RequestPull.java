@@ -2,14 +2,11 @@ package com.jet.grapplegun.network;
 
 import com.jet.grapplegun.EntityGrapplePuller;
 import com.jet.grapplegun.ItemGrapple;
-import com.jet.grapplegun.ItemGrappleGun;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -23,12 +20,17 @@ public class S_RequestPull implements IMessage {
     private int grappleID;
     private int parentEntityID;
     private Vec3d pullLocation;
+    private int pullEntityID;
     private boolean hit;
 
-    public S_RequestPull(Item itemGrapple, Entity parentEntity, Vec3d pullLocation, boolean hit) {
+    public S_RequestPull(Item itemGrapple, Entity parentEntity, Vec3d pullLocation, Entity pullEntity, boolean hit) {
         grappleID = Item.getIdFromItem(itemGrapple);
         parentEntityID = parentEntity.getEntityId();
         this.pullLocation = pullLocation;
+        if(pullEntity != null)
+            pullEntityID = pullEntity.getEntityId();
+        else
+            pullEntityID = 0;
         this.hit = hit;
     }
 
@@ -38,6 +40,7 @@ public class S_RequestPull implements IMessage {
         buf.writeDouble(pullLocation.x);
         buf.writeDouble(pullLocation.y);
         buf.writeDouble(pullLocation.z);
+        buf.writeInt(pullEntityID);
         buf.writeBoolean(hit);
     }
 
@@ -50,6 +53,7 @@ public class S_RequestPull implements IMessage {
         double z = buf.readDouble();
         pullLocation = new Vec3d(x, y, z);
 
+        pullEntityID = buf.readInt();
         hit = buf.readBoolean();
     }
 
@@ -63,18 +67,25 @@ public class S_RequestPull implements IMessage {
             player.getServerWorld().addScheduledTask(() -> {
                 ItemGrapple parentGrapple = null;
                 Entity parentEntity = null;
-                Item readItem = Item.getItemById(message.grappleID);
+                Entity pullEntity = null;
 
+                Item readItem = Item.getItemById(message.grappleID);
                 if(readItem != null && readItem instanceof ItemGrapple)
                     parentGrapple = (ItemGrapple) readItem;
 
-                Entity readEntity = player.getServerWorld().getEntityByID(message.parentEntityID);
-                if(readEntity != null)
-                    parentEntity = (Entity) readEntity;
+                Entity readParentEntity = player.getServerWorld().getEntityByID(message.parentEntityID);
+                if(readParentEntity != null)
+                    parentEntity = readParentEntity;
+
+                if(message.pullEntityID != 0) {
+                    Entity readPullEntity = player.getServerWorld().getEntityByID(message.pullEntityID);
+                    if (readPullEntity != null)
+                        pullEntity = readPullEntity;
+                }
 
                 if(parentGrapple != null && parentEntity != null) {
                     //player.sendMessage(new TextComponentString("Got grapple request"));
-                    EntityGrapplePuller newPuller = new EntityGrapplePuller(player.getServerWorld(), parentGrapple, parentEntity, message.pullLocation, message.hit);
+                    EntityGrapplePuller newPuller = new EntityGrapplePuller(player.getServerWorld(), parentGrapple, parentEntity, message.pullLocation, pullEntity, message.hit);
                     player.getServerWorld().spawnEntity(newPuller);
                 }
             });

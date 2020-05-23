@@ -53,12 +53,12 @@ public class ItemGrapple extends Item {
                 rayDistance = rayResult.hitVec.distanceTo(playerIn.getPositionVector());
 
             if(entityDistance == Double.POSITIVE_INFINITY && rayDistance == Double.POSITIVE_INFINITY) {
+
             }
-            else if(entityDistance < rayDistance) {
-            }
-            else {
-                GrapplePacketManager.INSTANCE.sendToServer(new S_RequestPull(this, playerIn, rayResult.hitVec, false));
-            }
+            else if(entityDistance < rayDistance)
+                GrapplePacketManager.INSTANCE.sendToServer(new S_RequestPull(this, playerIn, Vec3d.ZERO, hitEntity, false));
+            else
+                GrapplePacketManager.INSTANCE.sendToServer(new S_RequestPull(this, playerIn, rayResult.hitVec, null, false));
         }
         return new ActionResult<ItemStack>(EnumActionResult.PASS, playerIn.getHeldItem(handIn));
     }
