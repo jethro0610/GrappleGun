@@ -81,9 +81,8 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
 
         sh_hit = buf.readBoolean();
 
-        if(sh_parentEntity == GrappleGunMod.proxy.getPlayer() && sh_pullEntity == null) {
+        if(sh_parentEntity == GrappleGunMod.proxy.getPlayer() && sh_pullEntity == null)
             p_pullParent = true;
-        }
     }
 
     @Override
@@ -94,6 +93,8 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
             clientUpdate();
             if(sh_parentEntity == GrappleGunMod.proxy.getPlayer())
                 parentUpdate();
+            if(sh_pullEntity == GrappleGunMod.proxy.getPlayer())
+                pulledPlayerUpdate();
         }
     }
 
@@ -105,19 +106,22 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
             return;
         }
 
-        if(sh_pullEntity != null && !(sh_pullEntity instanceof EntityPlayer)) {
-            Vec3d pullVel = getPullVel(sh_parentEntity.getPositionEyes(1), sh_pullEntity.getPositionVector(), sh_parentGrapple.getPullSpeed());
-
-            sh_pullEntity.motionX = pullVel.x;
-            sh_pullEntity.motionY = pullVel.y;
-            sh_pullEntity.motionZ = pullVel.z;
-            sh_pullEntity.velocityChanged = true;
+        if(sh_pullEntity != null) {
+            if(!(sh_pullEntity instanceof EntityPlayer)) {
+                Vec3d pullVel = getPullVel(sh_parentEntity.getPositionEyes(1), sh_pullEntity.getPositionVector(), sh_parentGrapple.getPullSpeed());
+                sh_pullEntity.motionX = pullVel.x;
+                sh_pullEntity.motionY = pullVel.y;
+                sh_pullEntity.motionZ = pullVel.z;
+                sh_pullEntity.velocityChanged = true;
+            }
 
             if(sh_pullEntity.getPositionVector().distanceTo(sh_parentEntity.getPositionEyes(1)) < sh_parentGrapple.getPullSpeed()) {
-                sh_pullEntity.motionX = 0;
-                sh_pullEntity.motionY = 0;
-                sh_pullEntity.motionZ = 0;
-                sh_pullEntity.velocityChanged = true;
+                if(!(sh_pullEntity instanceof EntityPlayer)) {
+                    sh_pullEntity.motionX = 0;
+                    sh_pullEntity.motionY = 0;
+                    sh_pullEntity.motionZ = 0;
+                    sh_pullEntity.velocityChanged = true;
+                }
 
                 sh_pullEntity = null;
                 onKillCommand();
@@ -173,6 +177,13 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
                 p_sticking = false;
                 p_stickHeight = 0;
             }
+        }
+    }
+
+    private void pulledPlayerUpdate(){
+        if(sh_pullEntity != null) {
+            Vec3d pullVel = getPullVel(sh_parentEntity.getPositionEyes(1), sh_pullEntity.getPositionVector(), sh_parentGrapple.getPullSpeed());
+            sh_pullEntity.setVelocity(pullVel.x, pullVel.y, pullVel.z);
         }
     }
 
