@@ -23,10 +23,13 @@ public class S_RequestPull implements IMessage {
     private int grappleID;
     private int parentEntityID;
     private Vec3d pullLocation;
-    public S_RequestPull(Item itemGrapple, Entity parentEntity, Vec3d pullLocation) {
+    private boolean hit;
+
+    public S_RequestPull(Item itemGrapple, Entity parentEntity, Vec3d pullLocation, boolean hit) {
         grappleID = Item.getIdFromItem(itemGrapple);
         parentEntityID = parentEntity.getEntityId();
         this.pullLocation = pullLocation;
+        this.hit = hit;
     }
 
     @Override public void toBytes(ByteBuf buf) {
@@ -35,6 +38,7 @@ public class S_RequestPull implements IMessage {
         buf.writeDouble(pullLocation.x);
         buf.writeDouble(pullLocation.y);
         buf.writeDouble(pullLocation.z);
+        buf.writeBoolean(hit);
     }
 
     @Override public void fromBytes(ByteBuf buf) {
@@ -44,8 +48,9 @@ public class S_RequestPull implements IMessage {
         double x = buf.readDouble();
         double y = buf.readDouble();
         double z = buf.readDouble();
-
         pullLocation = new Vec3d(x, y, z);
+
+        hit = buf.readBoolean();
     }
 
     public static class Handler implements IMessageHandler<S_RequestPull, IMessage> {
@@ -69,7 +74,7 @@ public class S_RequestPull implements IMessage {
 
                 if(parentGrapple != null && parentEntity != null) {
                     //player.sendMessage(new TextComponentString("Got grapple request"));
-                    EntityGrapplePuller newPuller = new EntityGrapplePuller(player.getServerWorld(), parentGrapple, parentEntity, message.pullLocation);
+                    EntityGrapplePuller newPuller = new EntityGrapplePuller(player.getServerWorld(), parentGrapple, parentEntity, message.pullLocation, message.hit);
                     player.getServerWorld().spawnEntity(newPuller);
                 }
             });
