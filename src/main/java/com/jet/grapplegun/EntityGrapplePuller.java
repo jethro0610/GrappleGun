@@ -119,9 +119,16 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     public void onEntityUpdate() {
         if(sh_launchState == LaunchState.LAUNCHING) {
             sh_lastLaunchTime = sh_curLaunchTime--;
-            if (sh_curLaunchTime < 0)
-                sh_launchState = LaunchState.NONE;
+            if (sh_curLaunchTime < 0) {
+                if(sh_hit)
+                    sh_launchState = LaunchState.NONE;
+                else
+                    sh_launchState = LaunchState.RETURNING;
+            }
         }
+
+        if(sh_launchState == LaunchState.RETURNING)
+            sh_lastLaunchTime = sh_curLaunchTime++;
 
         if(!world.isRemote)
             serverUpdate();
@@ -134,7 +141,11 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
         }
     }
 
-    private void serverUpdate(){
+    private void serverUpdate() {
+        if(sh_launchState == LaunchState.RETURNING && sh_curLaunchTime > sh_parentGrapple.getLaunchTime()) {
+            onKillCommand();
+            return;
+        }
         if(sh_parentEntity != null) {
             setPosition(sh_parentEntity.posX, sh_parentEntity.posY, sh_parentEntity.posZ);
         }
