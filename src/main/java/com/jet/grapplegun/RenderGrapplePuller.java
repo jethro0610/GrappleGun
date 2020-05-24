@@ -1,6 +1,5 @@
 package com.jet.grapplegun;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -10,10 +9,8 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.Color;
 
 public class RenderGrapplePuller extends RenderEntity {
     ModelBase mainModel;
@@ -82,6 +79,10 @@ public class RenderGrapplePuller extends RenderEntity {
 
         GL11.glDepthMask(true);
         GL11.glPopAttrib();
+
+        double distanceToPoint = grapplePuller.getParentEntity().getPositionVector().distanceTo(grapplePuller.getPullLocation());
+        if(distanceToPoint <= 2.1 && renderManager.options.thirdPersonView == 0)
+            return;
 
         GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glEnable(GL11.GL_LIGHTING);

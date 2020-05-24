@@ -274,14 +274,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
         return sh_parentEntity;
     }
 
-    private Vec3d getLastPullLocaiton() {
-        if(sh_pullEntity == null)
-            return sh_pullLocation;
-        else
-            return new Vec3d(sh_pullEntity.prevPosX, sh_pullEntity.prevPosY, sh_pullEntity.prevPosZ);
-    }
-
-    private Vec3d getPullLocation() {
+    public Vec3d getPullLocation() {
         if(sh_pullEntity == null)
             return sh_pullLocation;
         else
@@ -357,7 +350,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
             return true;
     }
 
-    private Vec3d getOffsetPullLocation() {
+    public Vec3d getOffsetPullLocation() {
         return sh_pullLocation.subtract(0, sh_parentEntity.getEyeHeight(), 0);
     }
 
