@@ -124,19 +124,14 @@ public class ItemGrapple extends Item {
 
     public void onPullerDestroyed(Entity parentEntity) {
         sh_childPuller = null;
-        if(!parentEntity.getEntityWorld().isRemote) {
-            System.out.println("Sent destroy message");
+        if(!parentEntity.getEntityWorld().isRemote)
             GrapplePacketManager.INSTANCE.sendToAll(new C_DestroyedPuller(this, parentEntity));
-        }
         else {
-            Minecraft.getMinecraft().player.sendChatMessage("Puller Destroyed");
             if (parentEntity == null)
                 return;
 
-            if (parentEntity == GrappleGunMod.proxy.getPlayer()) {
+            if (parentEntity == GrappleGunMod.proxy.getPlayer())
                 parentEntity.setNoGravity(false);
-                Minecraft.getMinecraft().player.sendChatMessage("Gravity enabled");
-            }
         }
     }
 
