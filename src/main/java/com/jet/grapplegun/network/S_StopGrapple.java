@@ -15,17 +15,20 @@ public class S_StopGrapple implements IMessage {
     public S_StopGrapple(){}
 
     private int pullerID;
-
-    public S_StopGrapple(EntityGrapplePuller grapplePuller) {
+    private boolean cancelFallDamage;
+    public S_StopGrapple(EntityGrapplePuller grapplePuller, boolean cancelFallDamage) {
         pullerID = grapplePuller.getEntityId();
+        this.cancelFallDamage = cancelFallDamage;
     }
 
     @Override public void toBytes(ByteBuf buf) {
         buf.writeInt(pullerID);
+        buf.writeBoolean(cancelFallDamage);
     }
 
     @Override public void fromBytes(ByteBuf buf) {
         pullerID = buf.readInt();
+        cancelFallDamage = buf.readBoolean();
     }
 
     public static class Handler implements IMessageHandler<S_StopGrapple, IMessage> {
@@ -43,6 +46,8 @@ public class S_StopGrapple implements IMessage {
 
                 if(grapplePuller != null) {
                     grapplePuller.onKillCommand();
+                    if(message.cancelFallDamage)
+                        player.fallDistance = 0;
                 }
             });
             return null;
