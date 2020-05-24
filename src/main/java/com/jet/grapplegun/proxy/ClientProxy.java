@@ -25,10 +25,10 @@ public class ClientProxy extends CommonProxy {
         super.preInit(event);
 
         GrapplePacketManager.registerClientMessages();
-        RenderingRegistry.registerEntityRenderingHandler(EntityGrappleVisual.class, new IRenderFactory<EntityGrappleVisual>() {
+        RenderingRegistry.registerEntityRenderingHandler(EntityGrapplePuller.class, new IRenderFactory<EntityGrapplePuller>() {
             @Override
-            public Render<? super EntityGrappleVisual> createRenderFor(RenderManager manager) {
-                return new RenderGrappleVisual(manager, GRAPPLE_MODEL);
+            public Render<? super EntityGrapplePuller> createRenderFor(RenderManager manager) {
+                return new RenderGrapplePuller(manager, GRAPPLE_MODEL);
             }
         });
     }

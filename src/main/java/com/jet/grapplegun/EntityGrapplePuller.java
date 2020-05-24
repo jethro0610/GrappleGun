@@ -24,6 +24,9 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     private boolean p_sticking;
     private double p_stickHeight;
 
+    private double c_pitch;
+    private double c_yaw;
+
     public EntityGrapplePuller(World world) { super(world); }
 
     public EntityGrapplePuller(World world, ItemGrapple parentGrapple, Entity parentEntity, Vec3d pullLocation, Entity pullEntity, boolean hit) {
@@ -39,7 +42,8 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     @Override
     public void onKillCommand() {
         super.onKillCommand();
-        sh_parentGrapple.setChildPuller(null);
+        if(sh_parentGrapple != null)
+            sh_parentGrapple.setChildPuller(null);
     }
 
     @Override
@@ -83,6 +87,16 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
 
         if(sh_parentEntity == GrappleGunMod.proxy.getPlayer() && sh_pullEntity == null)
             p_pullParent = true;
+
+        Vec3d vectorToLocation = Vec3d.ZERO;
+        if(sh_pullEntity == null)
+            vectorToLocation = sh_pullLocation;
+        else
+            vectorToLocation = sh_pullEntity.getPositionVector();
+
+        vectorToLocation = vectorToLocation.scale(1/vectorToLocation.lengthVector());
+        c_pitch = (Math.PI / 2) + Math.atan2(vectorToLocation.y, vectorToLocation.lengthVector());
+        c_yaw =   (1.5 * Math.PI) + Math.atan2(vectorToLocation.x, vectorToLocation.z);
     }
 
     @Override
@@ -99,8 +113,9 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     }
 
     private void serverUpdate(){
-        if(sh_parentEntity != null)
-            setPositionAndUpdate(sh_parentEntity.posX, sh_parentEntity.posY, sh_parentEntity.posZ);
+        if(sh_parentEntity != null) {
+            setPosition(sh_parentEntity.posX, sh_parentEntity.posY, sh_parentEntity.posZ);
+        }
         else {
             onKillCommand();
             return;
@@ -130,8 +145,10 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     }
 
     private void clientUpdate(){
-        if(sh_parentEntity != null)
+        if(sh_parentEntity != null) {
             setPosition(sh_parentEntity.posX, sh_parentEntity.posY, sh_parentEntity.posZ);
+            setVelocity(sh_parentEntity.motionX, sh_parentEntity.motionY, sh_parentEntity.motionZ);
+        }
     }
 
     private void parentUpdate() {
@@ -187,12 +204,42 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
         }
     }
 
-    Vec3d getPullVel(Vec3d to, Vec3d from, double speed) {
+    public ItemGrapple getParentGrapple(){
+        return sh_parentGrapple;
+    }
+
+    public Entity getParentEntity() {
+        return sh_parentEntity;
+    }
+
+    public Vec3d getLastPullLocaiton() {
+        if(sh_pullEntity == null)
+            return sh_pullLocation;
+        else
+            return new Vec3d(sh_pullEntity.prevPosX, sh_pullEntity.prevPosY, sh_pullEntity.prevPosZ);
+    }
+
+    public Vec3d getPullLocation() {
+        if(sh_pullEntity == null)
+            return sh_pullLocation;
+        else
+            return sh_pullEntity.getPositionVector();
+    }
+
+    public double getPitch() {
+        return c_pitch;
+    }
+
+    public double getYaw() {
+        return c_yaw;
+    }
+
+    private Vec3d getPullVel(Vec3d to, Vec3d from, double speed) {
         Vec3d vel = to.subtract(from);
         return vel.scale(1/vel.lengthVector()).scale(speed);
     }
 
-    boolean entityIsCloseToGround(Entity entityIn, double distance, double velocity) {
+    private boolean entityIsCloseToGround(Entity entityIn, double distance, double velocity) {
         if(velocity > 0.2)
             return false;
 
