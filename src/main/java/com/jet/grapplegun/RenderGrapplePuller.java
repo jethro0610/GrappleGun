@@ -31,9 +31,10 @@ public class RenderGrapplePuller extends RenderEntity {
 
         Vec3d prevPos = new Vec3d(grapplePuller.getParentEntity().prevPosX, grapplePuller.getParentEntity().prevPosY, grapplePuller.getParentEntity().prevPosZ);
         Vec3d renderPos = getRenderPosition(prevPos, grapplePuller.getParentEntity().getPositionVector(), Minecraft.getMinecraft().getRenderPartialTicks());
-        Vec3d drawOrigin = new Vec3d(x, y, z);
+        Vec3d drawOrigin = new Vec3d(x, y + grapplePuller.getParentEntity().getEyeHeight() / 2, z);
 
         Vec3d renderEndPointPos = getRenderPosition(grapplePuller.getLastPullLocaiton(), grapplePuller.getPullLocation(), partialTicks);
+        renderEndPointPos = renderEndPointPos.subtract(0, grapplePuller.getParentEntity().getEyeHeight() / 2, 0);
         Vec3d vectorToEndPoint = renderEndPointPos.subtract(renderPos);
 
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
@@ -60,16 +61,17 @@ public class RenderGrapplePuller extends RenderEntity {
 
         // Draw the rope in segments
         int segments = (int)Math.floor(vectorToEndPoint.lengthVector() / SEGMENT_LENGTH);
+        double extraDist = vectorToEndPoint.lengthVector() - (segments * SEGMENT_LENGTH);
         int colorAdd = 0;
         for(int i = segments; i >= 0; i--) {
             Vec3d segVec = vectorToEndPoint.scale(1/vectorToEndPoint.lengthVector());
-            segVec = segVec.scale(i * SEGMENT_LENGTH);
+            segVec = segVec.scale((i * SEGMENT_LENGTH) + extraDist);
 
             vertexbuffer.pos(drawOrigin.x + segVec.x, drawOrigin.y + segVec.y,drawOrigin.z + segVec.z);
             vertexbuffer.color(c.getRed() + colorAdd, c.getGreen() + colorAdd, c.getBlue() + colorAdd, c.getAlpha());
             vertexbuffer.endVertex();
 
-            colorAdd = (i % 2) * 50;
+            colorAdd = Math.abs((segments % 2) - (i % 2)) * 50;
         }
         vertexbuffer.pos(drawOrigin.x, drawOrigin.y, drawOrigin.z);
         vertexbuffer.color(c.getRed() + colorAdd, c.getGreen() + colorAdd, c.getBlue() + colorAdd, c.getAlpha());
@@ -90,7 +92,7 @@ public class RenderGrapplePuller extends RenderEntity {
         GlStateManager.translate(drawOrigin.x + vectorToEndPoint.x, drawOrigin.y + vectorToEndPoint.y, drawOrigin.z + vectorToEndPoint.z);
 
         bindTexture(HEAD_TEXTURE);
-        mainModel.render(entity, 0, 0, 0, (float)grapplePuller.getPitch(), (float)grapplePuller.getYaw(), 1);
+        mainModel.render(entity, 0, 0, 0, (float)grapplePuller.getRenderYaw(partialTicks), (float)grapplePuller.getRenderPitch(partialTicks), 1);
 
         GlStateManager.enableCull();
         GlStateManager.popMatrix();

@@ -25,7 +25,9 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     private double p_stickHeight;
 
     private double c_pitch;
+    private double c_lastPitch;
     private double c_yaw;
+    private double c_lastYaw;
 
     public EntityGrapplePuller(World world) { super(world); }
 
@@ -88,15 +90,18 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
         if(sh_parentEntity == GrappleGunMod.proxy.getPlayer() && sh_pullEntity == null)
             p_pullParent = true;
 
-        Vec3d vectorToLocation = Vec3d.ZERO;
+        Vec3d vectorToLocation;
         if(sh_pullEntity == null)
-            vectorToLocation = sh_pullLocation;
+            vectorToLocation = sh_pullLocation.subtract(sh_parentEntity.getPositionEyes(1));
         else
-            vectorToLocation = sh_pullEntity.getPositionVector();
+            vectorToLocation = sh_pullEntity.getPositionVector().subtract(sh_parentEntity.getPositionEyes(1));
 
         vectorToLocation = vectorToLocation.scale(1/vectorToLocation.lengthVector());
-        c_pitch = (Math.PI / 2) + Math.atan2(vectorToLocation.y, vectorToLocation.lengthVector());
-        c_yaw =   (1.5 * Math.PI) + Math.atan2(vectorToLocation.x, vectorToLocation.z);
+        Vec3d vecXZ = new Vec3d(vectorToLocation.x, 0, vectorToLocation.z);
+        c_pitch = (Math.PI / 2) + Math.atan2(vectorToLocation.y, vecXZ.lengthVector());
+        c_lastPitch = c_pitch;
+        c_yaw = (1.5 * Math.PI) + Math.atan2(vectorToLocation.x, vectorToLocation.z);
+        c_lastYaw = c_yaw;
     }
 
     @Override
@@ -115,6 +120,10 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     private void serverUpdate(){
         if(sh_parentEntity != null) {
             setPosition(sh_parentEntity.posX, sh_parentEntity.posY, sh_parentEntity.posZ);
+            motionX = sh_parentEntity.motionX;
+            motionY = sh_parentEntity.motionY;
+            motionZ = sh_parentEntity.motionZ;
+            velocityChanged = true;
         }
         else {
             onKillCommand();
@@ -147,7 +156,17 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     private void clientUpdate(){
         if(sh_parentEntity != null) {
             setPosition(sh_parentEntity.posX, sh_parentEntity.posY, sh_parentEntity.posZ);
-            setVelocity(sh_parentEntity.motionX, sh_parentEntity.motionY, sh_parentEntity.motionZ);
+            //setVelocity(sh_parentEntity.motionX, sh_parentEntity.motionY, sh_parentEntity.motionZ);
+
+            if(sh_pullEntity != null) {
+                Vec3d vectorToLocation = sh_pullEntity.getPositionVector().subtract(sh_parentEntity.getPositionEyes(1));
+                vectorToLocation = vectorToLocation.scale(1/vectorToLocation.lengthVector());
+                Vec3d vecXZ = new Vec3d(vectorToLocation.x, 0, vectorToLocation.z);
+                c_lastPitch = c_pitch;
+                c_pitch = (Math.PI / 2) + Math.atan2(vectorToLocation.y, vecXZ.lengthVector());
+                c_lastYaw = c_yaw;
+                c_yaw = (1.5 * Math.PI) + Math.atan2(vectorToLocation.x, vectorToLocation.z);
+            }
         }
     }
 
@@ -230,8 +249,16 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
         return c_pitch;
     }
 
+    public double getRenderPitch(float partialTicks) {
+        return c_lastPitch + (c_pitch - c_lastPitch) * partialTicks;
+    }
+
     public double getYaw() {
         return c_yaw;
+    }
+
+    public double getRenderYaw(float partialTicks) {
+        return c_lastYaw+ (c_yaw - c_lastYaw) * partialTicks;
     }
 
     private Vec3d getPullVel(Vec3d to, Vec3d from, double speed) {
