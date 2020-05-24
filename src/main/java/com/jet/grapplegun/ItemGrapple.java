@@ -41,6 +41,15 @@ public class ItemGrapple extends Item {
         sh_color = color;
     }
 
+    @Override
+    public boolean onDroppedByPlayer(ItemStack item, EntityPlayer player) {
+        if(s_childPuller != null) {
+            s_childPuller.onKillCommand();
+            s_childPuller = null;
+        }
+        return true;
+    }
+
     public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn) {
         if(!worldIn.isRemote)
             return new ActionResult<ItemStack>(EnumActionResult.PASS, playerIn.getHeldItem(handIn));
