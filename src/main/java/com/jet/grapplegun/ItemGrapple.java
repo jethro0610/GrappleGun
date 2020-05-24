@@ -24,7 +24,7 @@ import java.util.List;
 public class ItemGrapple extends Item {
     private double sh_range;
     private double sh_pullSpeed;
-    private EntityGrapplePuller sh_childPuller;
+    private EntityGrapplePuller s_childPuller;
 
     public ItemGrapple(String name, double range, double pullSpeed){
         setRegistryName(name);
@@ -40,26 +40,25 @@ public class ItemGrapple extends Item {
         if(!worldIn.isRemote)
             return new ActionResult<ItemStack>(EnumActionResult.PASS, playerIn.getHeldItem(handIn));
 
-        if(sh_childPuller == null) {
-            Entity hitEntity = raytraceEntities(playerIn, worldIn);
-            RayTraceResult rayResult = worldIn.rayTraceBlocks(playerIn.getPositionEyes(1), playerIn.getPositionEyes(1).add(playerIn.getLookVec().scale(sh_range)));
+        Entity hitEntity = raytraceEntities(playerIn, worldIn);
+        RayTraceResult rayResult = worldIn.rayTraceBlocks(playerIn.getPositionEyes(1), playerIn.getPositionEyes(1).add(playerIn.getLookVec().scale(sh_range)));
 
-            // Get the nearest raycast
-            double entityDistance = Double.POSITIVE_INFINITY;
-            if(hitEntity != null)
-                entityDistance = hitEntity.getPositionVector().distanceTo(playerIn.getPositionVector());
-            double rayDistance = Double.POSITIVE_INFINITY;
-            if(rayResult != null)
-                rayDistance = rayResult.hitVec.distanceTo(playerIn.getPositionVector());
+        // Get the nearest raycast
+        double entityDistance = Double.POSITIVE_INFINITY;
+        if(hitEntity != null)
+            entityDistance = hitEntity.getPositionVector().distanceTo(playerIn.getPositionVector());
+        double rayDistance = Double.POSITIVE_INFINITY;
+        if(rayResult != null)
+            rayDistance = rayResult.hitVec.distanceTo(playerIn.getPositionVector());
 
-            if(entityDistance == Double.POSITIVE_INFINITY && rayDistance == Double.POSITIVE_INFINITY) {
+        if(entityDistance == Double.POSITIVE_INFINITY && rayDistance == Double.POSITIVE_INFINITY) {
 
-            }
-            else if(entityDistance < rayDistance)
-                GrapplePacketManager.INSTANCE.sendToServer(new S_RequestPull(this, playerIn, Vec3d.ZERO, hitEntity, false));
-            else
-                GrapplePacketManager.INSTANCE.sendToServer(new S_RequestPull(this, playerIn, rayResult.hitVec, null, false));
         }
+        else if(entityDistance < rayDistance)
+            GrapplePacketManager.INSTANCE.sendToServer(new S_RequestPull(this, playerIn, Vec3d.ZERO, hitEntity, false));
+        else
+            GrapplePacketManager.INSTANCE.sendToServer(new S_RequestPull(this, playerIn, rayResult.hitVec, null, false));
+
         return new ActionResult<ItemStack>(EnumActionResult.PASS, playerIn.getHeldItem(handIn));
     }
 
@@ -98,5 +97,7 @@ public class ItemGrapple extends Item {
         return sh_pullSpeed;
     }
 
-    public void setChildPuller(EntityGrapplePuller newChild) { sh_childPuller = newChild; }
+    public void setChildPuller(EntityGrapplePuller newChild) { s_childPuller = newChild; }
+
+    public EntityGrapplePuller getChildPuller() { return s_childPuller; }
 }

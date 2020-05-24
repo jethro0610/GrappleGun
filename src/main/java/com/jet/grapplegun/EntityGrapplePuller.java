@@ -74,7 +74,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
 
         int pullEntityID = buf.readInt();
         if(pullEntityID != 0) {
-            Entity readPullEntity = getEntityWorld().getEntityByID(buf.readInt());
+            Entity readPullEntity = getEntityWorld().getEntityByID(pullEntityID);
             if (readPullEntity != null)
                 sh_pullEntity = readPullEntity;
         }
@@ -205,7 +205,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
 
     @Override
     protected void entityInit() {
-        GrappleGunMod.proxy.getPlayer().sendMessage(new TextComponentString("Spawned grapple"));
+        //GrappleGunMod.proxy.getPlayer().sendMessage(new TextComponentString("Spawned grapple"));
     }
 
     @Override

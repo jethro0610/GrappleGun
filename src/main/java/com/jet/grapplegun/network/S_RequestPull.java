@@ -83,7 +83,7 @@ public class S_RequestPull implements IMessage {
                         pullEntity = readPullEntity;
                 }
 
-                if(parentGrapple != null && parentEntity != null) {
+                if(parentGrapple != null && parentEntity != null && parentGrapple.getChildPuller() == null) {
                     //player.sendMessage(new TextComponentString("Got grapple request"));
                     EntityGrapplePuller newPuller = new EntityGrapplePuller(player.getServerWorld(), parentGrapple, parentEntity, message.pullLocation, pullEntity, message.hit);
                     player.getServerWorld().spawnEntity(newPuller);
