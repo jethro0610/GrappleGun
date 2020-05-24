@@ -214,6 +214,8 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
             p_cancelled = true;
             sh_parentEntity.setNoGravity(false);
             GrapplePacketManager.INSTANCE.sendToServer(new S_StopGrapple(this, p_sticking));
+            if(p_sticking)
+                sh_parentEntity.fallDistance = 0;
         }
 
         if(p_cancelled)
@@ -250,6 +252,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
             // Hop off the grapple
             if(p_stickHeight > 0.2) {
                 GrapplePacketManager.INSTANCE.sendToServer(new S_StopGrapple(this, true));
+                sh_parentEntity.fallDistance = 0;
                 sh_parentEntity.setNoGravity(false);
                 sh_parentEntity.setVelocity(0, 0.6,0);
                 p_sticking = false;
@@ -259,6 +262,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
             // Hop down the grapple
             if (entityIsCloseToGround(sh_parentEntity, 1, 0 )) {
                 GrapplePacketManager.INSTANCE.sendToServer(new S_StopGrapple(this, true));
+                sh_parentEntity.fallDistance = 0;
                 sh_parentEntity.setVelocity(0, 0, 0);
                 sh_parentEntity.setNoGravity(false);
                 p_sticking = false;

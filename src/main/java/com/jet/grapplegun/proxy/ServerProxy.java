@@ -1,8 +1,5 @@
 package com.jet.grapplegun.proxy;
 
-import com.jet.grapplegun.network.GrapplePacketManager;
-import net.minecraft.client.Minecraft;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;

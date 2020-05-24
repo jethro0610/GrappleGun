@@ -5,7 +5,6 @@ import com.jet.grapplegun.network.GrapplePacketManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -17,7 +16,6 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 
 public class CommonProxy {
-    public Vec3d velocityLastTick = Vec3d.ZERO;
     protected static Item itemGrapple = new ItemGrapple("grapple", 20, 2, 10, new RopeColor(50, 50, 50, 50));
 
     public void preInit(FMLPreInitializationEvent event) { GrapplePacketManager.registerMessages(); }
