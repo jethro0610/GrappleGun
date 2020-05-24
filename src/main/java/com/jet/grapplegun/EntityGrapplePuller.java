@@ -354,6 +354,9 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     }
 
     private boolean entityIsCloseToGround(Entity entityIn, double distance, double velocity) {
+        if(entityIn.onGround)
+            return true;
+
         if(velocity > 0.2)
             return false;
 
