@@ -1,6 +1,7 @@
 package com.jet.grapplegun.proxy;
 
 import com.jet.grapplegun.*;
+import com.jet.grapplegun.network.GrapplePacketManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
@@ -17,14 +18,11 @@ import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 public class CommonProxy {
     protected static Item itemGrapple = new ItemGrapple("grapple", 20, 2, 10, new RopeColor(50, 50, 50, 50));
 
-    public void preInit(FMLPreInitializationEvent event) {
-    }
+    public void preInit(FMLPreInitializationEvent event) { GrapplePacketManager.registerMessages(); }
 
-    public void init(FMLInitializationEvent event) {
-    }
+    public void init(FMLInitializationEvent event) { }
 
-    public void postInit(FMLPostInitializationEvent event) {
-    }
+    public void postInit(FMLPostInitializationEvent event) { }
 
     public World getWorld() {
         return null;

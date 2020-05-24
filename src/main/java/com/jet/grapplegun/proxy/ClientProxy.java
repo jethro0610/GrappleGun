@@ -24,7 +24,6 @@ public class ClientProxy extends CommonProxy {
     public void preInit(FMLPreInitializationEvent event) {
         super.preInit(event);
 
-        GrapplePacketManager.registerClientMessages();
         RenderingRegistry.registerEntityRenderingHandler(EntityGrapplePuller.class, new IRenderFactory<EntityGrapplePuller>() {
             @Override
             public Render<? super EntityGrapplePuller> createRenderFor(RenderManager manager) {
@@ -47,8 +46,6 @@ public class ClientProxy extends CommonProxy {
     public World getWorld() {
         return Minecraft.getMinecraft().world;
     }
-
-    public World getWorldDim(int dimID) { return Minecraft.getMinecraft().world; }
 
     @Override
     public EntityPlayer getPlayer() {
