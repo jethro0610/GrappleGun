@@ -97,6 +97,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
         Item readItem = Item.getItemById(buf.readInt());
         if(readItem != null && readItem instanceof ItemGrapple)
             sh_parentGrapple = (ItemGrapple) readItem;
+        sh_parentGrapple.setChildPuller(this);
 
         Entity readParentEntity = getEntityWorld().getEntityByID(buf.readInt());
         if(readParentEntity != null)
@@ -243,8 +244,10 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
             // Stop pulling the player
             if(sh_parentEntity.getPositionVector().distanceTo(getOffsetPullLocation()) < sh_parentGrapple.getPullSpeed()) {
                 p_pullParent = false;
-                if (!Keyboard.isKeyDown(Keyboard.KEY_SPACE) && !entityIsCloseToGround(sh_parentEntity, sh_parentGrapple.getPullSpeed() + 0.5, pullVel.y))
+                if (!Keyboard.isKeyDown(Keyboard.KEY_SPACE) && !entityIsCloseToGround(sh_parentEntity, sh_parentGrapple.getPullSpeed() + 0.5, pullVel.y)) {
                     p_sticking = true;
+                    sh_parentEntity.setNoGravity(true);
+                }
                 else {
                     GrapplePacketManager.INSTANCE.sendToServer(new S_StopGrapple(this, false));
                     p_cancelled = true;
@@ -256,7 +259,6 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
             Vec3d pullVel = getOffsetPullLocation().addVector(0, p_stickHeight, 0).subtract(sh_parentEntity.getPositionVector());
             pullVel.scale(0.5);
             sh_parentEntity.setVelocity(pullVel.x,pullVel.y,pullVel.z);
-            sh_parentEntity.setNoGravity(true);
 
             // Move up and down the grapple
             if (sh_parentEntity.isSneaking())
@@ -268,7 +270,6 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
             if(p_stickHeight > 0.2) {
                 GrapplePacketManager.INSTANCE.sendToServer(new S_StopGrapple(this, true));
                 sh_parentEntity.fallDistance = 0;
-                //sh_parentEntity.setNoGravity(false);
                 sh_parentEntity.setVelocity(0, 0.6,0);
                 p_sticking = false;
                 p_stickHeight = 0;
@@ -279,7 +280,6 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
                 GrapplePacketManager.INSTANCE.sendToServer(new S_StopGrapple(this, true));
                 sh_parentEntity.fallDistance = 0;
                 sh_parentEntity.setVelocity(0, 0, 0);
-                //sh_parentEntity.setNoGravity(false);
                 p_sticking = false;
                 p_stickHeight = 0;
                 p_cancelled = true;
