@@ -24,10 +24,10 @@ import java.util.List;
 public class ItemGrapple extends Item {
     private double sh_range;
     private double sh_pullSpeed;
-    private int sh_launchTime;
+    private double sh_launchTime;
     private EntityGrapplePuller s_childPuller;
 
-    public ItemGrapple(String name, double range, double pullSpeed, int launchTime){
+    public ItemGrapple(String name, double range, double pullSpeed, double launchTime){
         setRegistryName(name);
         setUnlocalizedName(name);
         setCreativeTab(CreativeTabs.COMBAT);
@@ -96,11 +96,15 @@ public class ItemGrapple extends Item {
         return hitEntity;
     }
 
+    public double getRange() {
+        return sh_range;
+    }
+
     public double getPullSpeed() {
         return sh_pullSpeed;
     }
 
-    public int getLaunchTime() {
+    public double getLaunchTime() {
         return sh_launchTime;
     }
 

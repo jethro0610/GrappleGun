@@ -19,8 +19,9 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     private Entity sh_pullEntity;
 
     private boolean sh_hit;
-    private int sh_curLaunchTime;
-    private int sh_lastLaunchTime;
+    private double sh_launchTime;
+    private double sh_curLaunchTime;
+    private double sh_lastLaunchTime;
     private LaunchState sh_launchState;
 
     private boolean p_pullParent;
@@ -43,7 +44,13 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
         sh_hit = hit;
         setPositionAndUpdate(parentEntity.posX, parentEntity.posY, parentEntity.posZ);
 
-        sh_curLaunchTime = sh_parentGrapple.getLaunchTime();
+        if(sh_pullEntity == null)
+            sh_launchTime = sh_parentEntity.getPositionVector().distanceTo(sh_pullLocation) / sh_parentGrapple.getRange();
+        else
+            sh_launchTime = sh_parentEntity.getPositionVector().distanceTo(sh_pullEntity.getPositionVector()) / sh_parentGrapple.getRange();
+        sh_launchTime *= sh_parentGrapple.getLaunchTime();
+
+        sh_curLaunchTime = sh_launchTime;
         sh_lastLaunchTime = sh_curLaunchTime;
         sh_launchState = LaunchState.LAUNCHING;
     }
@@ -110,7 +117,13 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
         c_yaw = (1.5 * Math.PI) + Math.atan2(vectorToLocation.x, vectorToLocation.z);
         c_lastYaw = c_yaw;
 
-        sh_curLaunchTime = sh_parentGrapple.getLaunchTime();
+        if(sh_pullEntity == null)
+            sh_launchTime = sh_parentEntity.getPositionVector().distanceTo(sh_pullLocation) / sh_parentGrapple.getRange();
+        else
+            sh_launchTime = sh_parentEntity.getPositionVector().distanceTo(sh_pullEntity.getPositionVector()) / sh_parentGrapple.getRange();
+        sh_launchTime *= sh_parentGrapple.getLaunchTime();
+
+        sh_curLaunchTime = sh_launchTime;
         sh_lastLaunchTime = sh_curLaunchTime;
         sh_launchState = LaunchState.LAUNCHING;
     }
@@ -142,7 +155,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     }
 
     private void serverUpdate() {
-        if(sh_launchState == LaunchState.RETURNING && sh_curLaunchTime > sh_parentGrapple.getLaunchTime()) {
+        if(sh_launchState == LaunchState.RETURNING && sh_curLaunchTime > sh_launchTime) {
             onKillCommand();
             return;
         }
@@ -303,8 +316,8 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
         if(sh_launchState == LaunchState.NONE)
             return 1;
         else {
-            double curLaunchMult = (double)sh_curLaunchTime/sh_parentGrapple.getLaunchTime();
-            double lastLaunchMult = (double)sh_lastLaunchTime/sh_parentGrapple.getLaunchTime();
+            double curLaunchMult = (double)sh_curLaunchTime/sh_launchTime;
+            double lastLaunchMult = (double)sh_lastLaunchTime/sh_launchTime;
             return 1 - getRenderDouble(lastLaunchMult, curLaunchMult, partialTicks);
         }
     }

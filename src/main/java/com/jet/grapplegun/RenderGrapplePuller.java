@@ -28,6 +28,8 @@ public class RenderGrapplePuller extends RenderEntity {
     @Override
     public void doRender(Entity entity, double x, double y, double z, float entityYaw, float partialTicks) {
         grapplePuller = (EntityGrapplePuller) entity;
+        if(grapplePuller.getRenderLaunchMult(partialTicks) < 0)
+            return;
 
         Vec3d renderPos = grapplePuller.getRenderPosition(partialTicks);
         Vec3d drawOrigin = new Vec3d(x, y + grapplePuller.getParentEntity().getEyeHeight() / 2, z);
