@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.RayTraceResult;
@@ -64,6 +65,12 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
         super.onKillCommand();
         if(sh_parentGrapple != null)
             sh_parentGrapple.setChildPuller(null);
+        if(sh_parentEntity != null) {
+            if(sh_parentEntity instanceof EntityPlayerMP){
+                EntityPlayerMP player = (EntityPlayerMP) sh_parentEntity;
+                player.capabilities.allowFlying = false;
+            }
+        }
     }
 
     @Override
@@ -164,6 +171,10 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
         }
         if(sh_parentEntity != null) {
             setPosition(sh_parentEntity.posX, sh_parentEntity.posY, sh_parentEntity.posZ);
+            if(sh_parentEntity instanceof EntityPlayerMP){
+                EntityPlayerMP player = (EntityPlayerMP) sh_parentEntity;
+                player.capabilities.allowFlying = true;
+            }
         }
         else {
             onKillCommand();
