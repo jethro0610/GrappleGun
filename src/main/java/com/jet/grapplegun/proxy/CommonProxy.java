@@ -15,17 +15,8 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 
 public class CommonProxy {
-    /*protected static Item itemGrappleGun = new ItemGrappleGun(
-            "grapple_gun",
-            20,
-            10,
-            2,
-            150,
-            150,
-            150,
-            100);*/
-
     protected static Item itemGrapple = new ItemGrapple("grapple", 20, 2, 10, new RopeColor(50, 50, 50, 50));
+
     public void preInit(FMLPreInitializationEvent event) {
     }
 
@@ -52,13 +43,6 @@ public class CommonProxy {
 
         @SubscribeEvent
         public static void registerEntity(RegistryEvent.Register<EntityEntry> event) {
-            /*EntityEntry grapplepoint = EntityEntryBuilder.create()
-                    .entity(EntityGrappleVisual.class)
-                    .id(new ResourceLocation(GrappleGunMod.MODID + ":grapplepoint"), 144)
-                    .name("grapplepoint")
-                    .tracker(64, 20, false)
-                    .build();*/
-
             EntityEntry grapplepuller = EntityEntryBuilder.create()
                     .entity(EntityGrapplePuller.class)
                     .id(new ResourceLocation(GrappleGunMod.MODID + ":grapplepuller"), 144)
