@@ -2,6 +2,7 @@ package com.jet.grapplegun;
 
 import com.jet.grapplegun.network.*;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -53,6 +54,8 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
         sh_curLaunchTime = sh_launchTime;
         sh_lastLaunchTime = sh_curLaunchTime;
         sh_launchState = LaunchState.LAUNCHING;
+
+        sh_parentGrapple.setChildPuller(this);
     }
 
     @Override
@@ -81,7 +84,6 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
         Item readItem = Item.getItemById(buf.readInt());
         if(readItem != null && readItem instanceof ItemGrapple)
             sh_parentGrapple = (ItemGrapple) readItem;
-        sh_parentGrapple.setChildPuller(this);
 
         Entity readParentEntity = getEntityWorld().getEntityByID(buf.readInt());
         if(readParentEntity != null)
@@ -253,9 +255,14 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     }
 
     private void pulledPlayerUpdate(){
-        if(sh_pullEntity != null) {
-            Vec3d pullVel = getPullVel(sh_parentEntity.getPositionEyes(1), sh_pullEntity.getPositionVector(), sh_parentGrapple.getPullSpeed());
-            sh_pullEntity.setVelocity(pullVel.x, pullVel.y, pullVel.z);
+        if(sh_pullEntity != null && sh_pullEntity == Minecraft.getMinecraft().player && sh_launchState == LaunchState.NONE) {
+            if(sh_pullEntity.getPositionVector().distanceTo(sh_parentEntity.getPositionEyes(1)) < sh_parentGrapple.getPullSpeed()) {
+                sh_pullEntity.setVelocity(0, 0, 0);
+            }
+            else {
+                Vec3d pullVel = getPullVel(sh_parentEntity.getPositionEyes(1), sh_pullEntity.getPositionVector(), sh_parentGrapple.getPullSpeed());
+                sh_pullEntity.setVelocity(pullVel.x, pullVel.y, pullVel.z);
+            }
         }
     }
 
