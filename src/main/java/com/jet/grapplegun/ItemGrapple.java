@@ -24,9 +24,10 @@ import java.util.List;
 public class ItemGrapple extends Item {
     private double sh_range;
     private double sh_pullSpeed;
+    private int sh_launchTime;
     private EntityGrapplePuller s_childPuller;
 
-    public ItemGrapple(String name, double range, double pullSpeed){
+    public ItemGrapple(String name, double range, double pullSpeed, int launchTime){
         setRegistryName(name);
         setUnlocalizedName(name);
         setCreativeTab(CreativeTabs.COMBAT);
@@ -34,6 +35,7 @@ public class ItemGrapple extends Item {
 
         sh_range = range;
         sh_pullSpeed = pullSpeed;
+        sh_launchTime = launchTime;
     }
 
     public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn) {
@@ -95,6 +97,10 @@ public class ItemGrapple extends Item {
 
     public double getPullSpeed() {
         return sh_pullSpeed;
+    }
+
+    public int getLaunchTime() {
+        return sh_launchTime;
     }
 
     public void setChildPuller(EntityGrapplePuller newChild) { s_childPuller = newChild; }

@@ -8,7 +8,6 @@ import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import org.lwjgl.input.Keyboard;
@@ -18,7 +17,11 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     private Entity sh_parentEntity;
     private Vec3d sh_pullLocation;
     private Entity sh_pullEntity;
+
     private boolean sh_hit;
+    private int sh_curLaunchTime;
+    private int sh_lastLaunchTime;
+    private LaunchState sh_launchState;
 
     private boolean p_pullParent;
     private boolean p_sticking;
@@ -39,6 +42,10 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
         sh_pullEntity = pullEntity;
         sh_hit = hit;
         setPositionAndUpdate(parentEntity.posX, parentEntity.posY, parentEntity.posZ);
+
+        sh_curLaunchTime = sh_parentGrapple.getLaunchTime();
+        sh_lastLaunchTime = sh_curLaunchTime;
+        sh_launchState = LaunchState.LAUNCHING;
     }
 
     @Override
@@ -102,10 +109,20 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
         c_lastPitch = c_pitch;
         c_yaw = (1.5 * Math.PI) + Math.atan2(vectorToLocation.x, vectorToLocation.z);
         c_lastYaw = c_yaw;
+
+        sh_curLaunchTime = sh_parentGrapple.getLaunchTime();
+        sh_lastLaunchTime = sh_curLaunchTime;
+        sh_launchState = LaunchState.LAUNCHING;
     }
 
     @Override
     public void onEntityUpdate() {
+        if(sh_launchState == LaunchState.LAUNCHING) {
+            sh_lastLaunchTime = sh_curLaunchTime--;
+            if (sh_curLaunchTime < 0)
+                sh_launchState = LaunchState.NONE;
+        }
+
         if(!world.isRemote)
             serverUpdate();
         else {
@@ -120,17 +137,13 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     private void serverUpdate(){
         if(sh_parentEntity != null) {
             setPosition(sh_parentEntity.posX, sh_parentEntity.posY, sh_parentEntity.posZ);
-            motionX = sh_parentEntity.motionX;
-            motionY = sh_parentEntity.motionY;
-            motionZ = sh_parentEntity.motionZ;
-            velocityChanged = true;
         }
         else {
             onKillCommand();
             return;
         }
 
-        if(sh_pullEntity != null) {
+        if(sh_pullEntity != null && sh_launchState == LaunchState.NONE) {
             if(!(sh_pullEntity instanceof EntityPlayer)) {
                 Vec3d pullVel = getPullVel(sh_parentEntity.getPositionEyes(1), sh_pullEntity.getPositionVector(), sh_parentGrapple.getPullSpeed());
                 sh_pullEntity.motionX = pullVel.x;
@@ -156,9 +169,8 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     private void clientUpdate(){
         if(sh_parentEntity != null) {
             setPosition(sh_parentEntity.posX, sh_parentEntity.posY, sh_parentEntity.posZ);
-            //setVelocity(sh_parentEntity.motionX, sh_parentEntity.motionY, sh_parentEntity.motionZ);
 
-            if(sh_pullEntity != null) {
+            if(sh_pullEntity != null && sh_launchState == LaunchState.NONE) {
                 Vec3d vectorToLocation = sh_pullEntity.getPositionVector().subtract(sh_parentEntity.getPositionEyes(1));
                 vectorToLocation = vectorToLocation.scale(1/vectorToLocation.lengthVector());
                 Vec3d vecXZ = new Vec3d(vectorToLocation.x, 0, vectorToLocation.z);
@@ -171,7 +183,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     }
 
     private void parentUpdate() {
-        if(p_pullParent) {
+        if(p_pullParent && sh_launchState == LaunchState.NONE) {
             Vec3d pullVel = getPullVel(sh_pullLocation, sh_parentEntity.getPositionVector(), sh_parentGrapple.getPullSpeed());
             sh_parentEntity.setVelocity(pullVel.x, pullVel.y, pullVel.z);
 
@@ -185,7 +197,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
             }
         }
 
-        if(p_sticking) {
+        if(p_sticking && sh_launchState == LaunchState.NONE) {
             Vec3d pullVel = sh_pullLocation.addVector(0, p_stickHeight, 0).subtract(sh_parentEntity.getPositionVector());
             pullVel.scale(0.5);
             sh_parentEntity.setVelocity(pullVel.x,pullVel.y,pullVel.z);
@@ -231,18 +243,33 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
         return sh_parentEntity;
     }
 
-    public Vec3d getLastPullLocaiton() {
+    private Vec3d getLastPullLocaiton() {
         if(sh_pullEntity == null)
             return sh_pullLocation;
         else
             return new Vec3d(sh_pullEntity.prevPosX, sh_pullEntity.prevPosY, sh_pullEntity.prevPosZ);
     }
 
-    public Vec3d getPullLocation() {
+    private Vec3d getPullLocation() {
         if(sh_pullEntity == null)
             return sh_pullLocation;
         else
             return sh_pullEntity.getPositionVector();
+    }
+
+    public Vec3d getRenderPullLocation(float partialTicks) {
+        if(sh_pullEntity == null) {
+            return sh_pullLocation;
+        }
+        else {
+            Vec3d prevPos = new Vec3d(sh_pullEntity.prevPosX, sh_pullEntity.prevPosY, sh_pullEntity.prevPosZ);
+            return getRenderVec(prevPos, sh_pullEntity.getPositionVector(), partialTicks).addVector(0, sh_pullEntity.getEyeHeight()/2, 0 );
+        }
+    }
+
+    public Vec3d getRenderPosition(float partialTicks){
+        Vec3d prevPos = new Vec3d(sh_parentEntity.prevPosX, sh_parentEntity.prevPosY, sh_parentEntity.prevPosZ);
+        return getRenderVec(prevPos, sh_parentEntity.getPositionVector(), partialTicks);
     }
 
     public double getPitch() {
@@ -250,7 +277,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     }
 
     public double getRenderPitch(float partialTicks) {
-        return c_lastPitch + (c_pitch - c_lastPitch) * partialTicks;
+        return getRenderDouble(c_lastPitch, c_pitch, partialTicks);
     }
 
     public double getYaw() {
@@ -258,7 +285,29 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     }
 
     public double getRenderYaw(float partialTicks) {
-        return c_lastYaw+ (c_yaw - c_lastYaw) * partialTicks;
+        return getRenderDouble(c_lastYaw, c_yaw, partialTicks);
+    }
+
+    public double getRenderLaunchMult(float partialTicks){
+        if(sh_launchState == LaunchState.NONE)
+            return 1;
+        else {
+            double curLaunchMult = (double)sh_curLaunchTime/sh_parentGrapple.getLaunchTime();
+            double lastLaunchMult = (double)sh_lastLaunchTime/sh_parentGrapple.getLaunchTime();
+            return 1 - getRenderDouble(lastLaunchMult, curLaunchMult, partialTicks);
+        }
+    }
+
+    private Vec3d getRenderVec(Vec3d prevPos, Vec3d curPos, float partialTicks) {
+        double x = getRenderDouble(prevPos.x, curPos.x, partialTicks);
+        double y = getRenderDouble(prevPos.y, curPos.y, partialTicks);
+        double z = getRenderDouble(prevPos.z, curPos.z, partialTicks);
+
+        return new Vec3d(x, y, z);
+    }
+
+    private double getRenderDouble(double prevPos, double curPos, float partialTicks) {
+        return prevPos + (curPos - prevPos) * partialTicks;
     }
 
     private Vec3d getPullVel(Vec3d to, Vec3d from, double speed) {

@@ -29,13 +29,13 @@ public class RenderGrapplePuller extends RenderEntity {
     public void doRender(Entity entity, double x, double y, double z, float entityYaw, float partialTicks) {
         grapplePuller = (EntityGrapplePuller) entity;
 
-        Vec3d prevPos = new Vec3d(grapplePuller.getParentEntity().prevPosX, grapplePuller.getParentEntity().prevPosY, grapplePuller.getParentEntity().prevPosZ);
-        Vec3d renderPos = getRenderPosition(prevPos, grapplePuller.getParentEntity().getPositionVector(), Minecraft.getMinecraft().getRenderPartialTicks());
+        Vec3d renderPos = grapplePuller.getRenderPosition(partialTicks);
         Vec3d drawOrigin = new Vec3d(x, y + grapplePuller.getParentEntity().getEyeHeight() / 2, z);
 
-        Vec3d renderEndPointPos = getRenderPosition(grapplePuller.getLastPullLocaiton(), grapplePuller.getPullLocation(), partialTicks);
+        Vec3d renderEndPointPos = grapplePuller.getRenderPullLocation(partialTicks);
         renderEndPointPos = renderEndPointPos.subtract(0, grapplePuller.getParentEntity().getEyeHeight() / 2, 0);
         Vec3d vectorToEndPoint = renderEndPointPos.subtract(renderPos);
+        vectorToEndPoint = vectorToEndPoint.scale(grapplePuller.getRenderLaunchMult(partialTicks));
 
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
         GL11.glDisable(GL11.GL_CULL_FACE);
@@ -96,17 +96,5 @@ public class RenderGrapplePuller extends RenderEntity {
 
         GlStateManager.enableCull();
         GlStateManager.popMatrix();
-    }
-
-    private Vec3d getRenderPosition(Vec3d prevPos, Vec3d curPos, float partialTicks) {
-        double x = getRenderDouble(prevPos.x, curPos.x, partialTicks);
-        double y = getRenderDouble(prevPos.y, curPos.y, partialTicks);
-        double z = getRenderDouble(prevPos.z, curPos.z, partialTicks);
-
-        return new Vec3d(x, y, z);
-    }
-
-    private double getRenderDouble(double prevPos, double curPos, float partialTicks) {
-        return prevPos + (curPos - prevPos) * partialTicks;
     }
 }
