@@ -13,5 +13,6 @@ public class GrapplePacketManager {
 
         INSTANCE.registerMessage(S_RequestPull.Handler.class, S_RequestPull.class, packetID++, Side.SERVER);
         INSTANCE.registerMessage(S_StopGrapple.Handler.class, S_StopGrapple.class, packetID++, Side.SERVER);
+        INSTANCE.registerMessage(C_DestroyedPuller.Handler.class, C_DestroyedPuller.class, packetID++, Side.CLIENT);
     }
 }

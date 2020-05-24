@@ -63,8 +63,13 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     @Override
     public void onKillCommand() {
         super.onKillCommand();
-        if(sh_parentGrapple != null)
-            sh_parentGrapple.setChildPuller(null);
+
+        if(world.isRemote)
+            return;
+
+        if(sh_parentGrapple != null) {
+            sh_parentGrapple.onPullerDestroyed(sh_parentEntity);
+        }
         if(sh_parentEntity != null) {
             if(sh_parentEntity instanceof EntityPlayerMP){
                 EntityPlayerMP player = (EntityPlayerMP) sh_parentEntity;
@@ -223,7 +228,6 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     private void parentUpdate() {
         if(!p_cancelled && Keyboard.isKeyDown(Keyboard.KEY_R)){
             p_cancelled = true;
-            sh_parentEntity.setNoGravity(false);
             GrapplePacketManager.INSTANCE.sendToServer(new S_StopGrapple(this, p_sticking));
             if(p_sticking)
                 sh_parentEntity.fallDistance = 0;
@@ -264,7 +268,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
             if(p_stickHeight > 0.2) {
                 GrapplePacketManager.INSTANCE.sendToServer(new S_StopGrapple(this, true));
                 sh_parentEntity.fallDistance = 0;
-                sh_parentEntity.setNoGravity(false);
+                //sh_parentEntity.setNoGravity(false);
                 sh_parentEntity.setVelocity(0, 0.6,0);
                 p_sticking = false;
                 p_stickHeight = 0;
@@ -275,7 +279,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
                 GrapplePacketManager.INSTANCE.sendToServer(new S_StopGrapple(this, true));
                 sh_parentEntity.fallDistance = 0;
                 sh_parentEntity.setVelocity(0, 0, 0);
-                sh_parentEntity.setNoGravity(false);
+                //sh_parentEntity.setNoGravity(false);
                 p_sticking = false;
                 p_stickHeight = 0;
                 p_cancelled = true;

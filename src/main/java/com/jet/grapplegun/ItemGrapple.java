@@ -2,6 +2,7 @@ package com.jet.grapplegun;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.jet.grapplegun.network.C_DestroyedPuller;
 import com.jet.grapplegun.network.GrapplePacketManager;
 import com.jet.grapplegun.network.S_RequestPull;
 import net.minecraft.client.Minecraft;
@@ -16,6 +17,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -27,7 +29,7 @@ public class ItemGrapple extends Item {
     private double sh_launchTime;
     private RopeColor sh_color;
 
-    private EntityGrapplePuller s_childPuller;
+    private EntityGrapplePuller sh_childPuller;
 
     public ItemGrapple(String name, double range, double pullSpeed, double launchTime, RopeColor color){
         setRegistryName(name);
@@ -43,9 +45,9 @@ public class ItemGrapple extends Item {
 
     @Override
     public boolean onDroppedByPlayer(ItemStack item, EntityPlayer player) {
-        if(s_childPuller != null) {
-            s_childPuller.onKillCommand();
-            s_childPuller = null;
+        if(sh_childPuller != null) {
+            sh_childPuller.onKillCommand();
+            sh_childPuller = null;
         }
         return true;
     }
@@ -75,6 +77,18 @@ public class ItemGrapple extends Item {
             GrapplePacketManager.INSTANCE.sendToServer(new S_RequestPull(this, playerIn, rayResult.hitVec, null, true));
 
         return new ActionResult<ItemStack>(EnumActionResult.PASS, playerIn.getHeldItem(handIn));
+    }
+
+    @Override
+    public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+        if(entityIn instanceof EntityPlayer){
+            EntityPlayer player = (EntityPlayer) entityIn;
+
+            if(player.getHeldItemMainhand().getItem() != this && player.getHeldItemOffhand().getItem() != this){
+                if(sh_childPuller != null && !worldIn.isRemote)
+                    sh_childPuller.onKillCommand();
+            }
+        }
     }
 
     Entity raytraceEntities(EntityPlayer playerIn, World worldIn){
@@ -108,6 +122,20 @@ public class ItemGrapple extends Item {
         return hitEntity;
     }
 
+    public void onPullerDestroyed(Entity parentEntity) {
+        sh_childPuller = null;
+        if(!parentEntity.getEntityWorld().isRemote) {
+            GrapplePacketManager.INSTANCE.sendToAll(new C_DestroyedPuller(this, parentEntity));
+        }
+        else {
+            if (parentEntity == null)
+                return;
+
+            if (parentEntity == GrappleGunMod.proxy.getPlayer())
+                parentEntity.setNoGravity(false);
+        }
+    }
+
     public double getRange() {
         return sh_range;
     }
@@ -124,7 +152,7 @@ public class ItemGrapple extends Item {
         return sh_color;
     }
 
-    public void setChildPuller(EntityGrapplePuller newChild) { s_childPuller = newChild; }
+    public void setChildPuller(EntityGrapplePuller newChild) { sh_childPuller = newChild; }
 
-    public EntityGrapplePuller getChildPuller() { return s_childPuller; }
+    public EntityGrapplePuller getChildPuller() { return sh_childPuller; }
 }

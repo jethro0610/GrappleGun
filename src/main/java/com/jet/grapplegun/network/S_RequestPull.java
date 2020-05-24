@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -83,7 +84,19 @@ public class S_RequestPull implements IMessage {
                         pullEntity = readPullEntity;
                 }
 
-                if(parentGrapple != null && parentEntity != null && parentGrapple.getChildPuller() == null) {
+                boolean canGrapple = true;
+                Item mainItem = player.getHeldItem(EnumHand.MAIN_HAND).getItem();
+                Item offItem = player.getHeldItem(EnumHand.OFF_HAND).getItem();
+                if(mainItem instanceof ItemGrapple) {
+                    if(((ItemGrapple) mainItem).getChildPuller() != null)
+                        canGrapple = false;
+                }
+                if(offItem instanceof ItemGrapple) {
+                    if(((ItemGrapple) offItem).getChildPuller() != null)
+                        canGrapple = false;
+                }
+
+                if(parentGrapple != null && parentEntity != null && parentGrapple.getChildPuller() == null && canGrapple) {
                     Vec3d offsetPullLocation = new Vec3d(
                             parentEntity.posX-message.pullLocation.x,
                             parentEntity.posY-message.pullLocation.y,
