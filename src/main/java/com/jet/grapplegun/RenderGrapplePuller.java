@@ -47,8 +47,8 @@ public class RenderGrapplePuller extends RenderEntity {
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-        Color c = new Color(200, 80, 40, 255);
-        GL11.glColor4d(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+        RopeColor ropeColor = grapplePuller.getParentGrapple().getColor();
+        GL11.glColor4d(ropeColor.red, ropeColor.green, ropeColor.blue, 255);
 
         // Shrink the line width based on the distance of the camera
         float cameraDist = (float) renderManager.getDistanceToCamera(x, y, z);
@@ -70,13 +70,13 @@ public class RenderGrapplePuller extends RenderEntity {
             segVec = segVec.scale((i * SEGMENT_LENGTH) + extraDist);
 
             vertexbuffer.pos(drawOrigin.x + segVec.x, drawOrigin.y + segVec.y,drawOrigin.z + segVec.z);
-            vertexbuffer.color(c.getRed() + colorAdd, c.getGreen() + colorAdd, c.getBlue() + colorAdd, c.getAlpha());
+            vertexbuffer.color(ropeColor.red + colorAdd, ropeColor.green + colorAdd, ropeColor.blue + colorAdd, 255);
             vertexbuffer.endVertex();
 
-            colorAdd = Math.abs((segments % 2) - (i % 2)) * 50;
+            colorAdd = Math.abs((segments % 2) - (i % 2)) * ropeColor.add;
         }
         vertexbuffer.pos(drawOrigin.x, drawOrigin.y, drawOrigin.z);
-        vertexbuffer.color(c.getRed() + colorAdd, c.getGreen() + colorAdd, c.getBlue() + colorAdd, c.getAlpha());
+        vertexbuffer.color(ropeColor.red + colorAdd, ropeColor.green + colorAdd, ropeColor.blue + colorAdd, 255);
         vertexbuffer.endVertex();
         tessellator.draw();
 

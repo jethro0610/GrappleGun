@@ -25,9 +25,11 @@ public class ItemGrapple extends Item {
     private double sh_range;
     private double sh_pullSpeed;
     private double sh_launchTime;
+    private RopeColor sh_color;
+
     private EntityGrapplePuller s_childPuller;
 
-    public ItemGrapple(String name, double range, double pullSpeed, double launchTime){
+    public ItemGrapple(String name, double range, double pullSpeed, double launchTime, RopeColor color){
         setRegistryName(name);
         setUnlocalizedName(name);
         setCreativeTab(CreativeTabs.COMBAT);
@@ -36,6 +38,7 @@ public class ItemGrapple extends Item {
         sh_range = range;
         sh_pullSpeed = pullSpeed;
         sh_launchTime = launchTime;
+        sh_color = color;
     }
 
     public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn) {
@@ -106,6 +109,10 @@ public class ItemGrapple extends Item {
 
     public double getLaunchTime() {
         return sh_launchTime;
+    }
+
+    public RopeColor getColor() {
+        return sh_color;
     }
 
     public void setChildPuller(EntityGrapplePuller newChild) { s_childPuller = newChild; }

@@ -25,7 +25,7 @@ public class CommonProxy {
             150,
             100);*/
 
-    protected static Item itemGrapple = new ItemGrapple("grapple", 20, 2, 10);
+    protected static Item itemGrapple = new ItemGrapple("grapple", 20, 2, 10, new RopeColor(50, 50, 50, 50));
     public void preInit(FMLPreInitializationEvent event) {
     }
 
