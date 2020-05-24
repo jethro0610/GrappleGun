@@ -64,9 +64,6 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     public void onKillCommand() {
         super.onKillCommand();
 
-        if(world.isRemote)
-            return;
-
         if(sh_parentGrapple != null) {
             sh_parentGrapple.onPullerDestroyed(sh_parentEntity);
         }

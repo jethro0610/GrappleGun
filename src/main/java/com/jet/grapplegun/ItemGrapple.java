@@ -124,12 +124,11 @@ public class ItemGrapple extends Item {
 
     public void onPullerDestroyed(Entity parentEntity) {
         sh_childPuller = null;
+        if (parentEntity == null)
+            return;
         if(!parentEntity.getEntityWorld().isRemote)
             GrapplePacketManager.INSTANCE.sendToAll(new C_DestroyedPuller(this, parentEntity));
         else {
-            if (parentEntity == null)
-                return;
-
             if (parentEntity == GrappleGunMod.proxy.getPlayer())
                 parentEntity.setNoGravity(false);
         }
