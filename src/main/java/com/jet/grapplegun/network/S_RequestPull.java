@@ -7,6 +7,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
@@ -89,16 +90,27 @@ public class S_RequestPull implements IMessage {
                 boolean canGrapple = true;
                 Item mainItem = player.getHeldItem(EnumHand.MAIN_HAND).getItem();
                 Item offItem = player.getHeldItem(EnumHand.OFF_HAND).getItem();
+                ItemStack grappleStack = null;
                 if(mainItem instanceof ItemGrapple) {
                     if(((ItemGrapple) mainItem).getChildPuller() != null)
                         canGrapple = false;
+
+                    if(((ItemGrapple) mainItem) == parentGrapple){
+                        grappleStack = player.getHeldItem(EnumHand.MAIN_HAND);
+                    }
                 }
                 if(offItem instanceof ItemGrapple) {
                     if(((ItemGrapple) offItem).getChildPuller() != null)
                         canGrapple = false;
-                }
 
+                    if(((ItemGrapple) offItem) == parentGrapple){
+                        grappleStack = player.getHeldItem(EnumHand.MAIN_HAND);
+                    }
+                }
+                
                 if(parentGrapple != null && parentEntity != null && parentGrapple.getChildPuller() == null && canGrapple) {
+                    grappleStack.damageItem(1, player);
+                    new ItemStack(parentGrapple).damageItem(1, player);
                     player.getServerWorld().playSound(null, player.posX, player.posY, player.posZ, SoundHandler.GRAPPLE_FIRE, SoundCategory.MASTER, 1.0f, 1.0f);
                     EntityGrapplePuller newPuller = new EntityGrapplePuller(player.getServerWorld(), parentGrapple, parentEntity, message.pullLocation, pullEntity, message.hit);
                     player.getServerWorld().spawnEntity(newPuller);

@@ -36,7 +36,7 @@ public class ItemGrapple extends Item {
                 return sh_childPuller == null ? 0.0f : 1.0f;
             }
         });
-
+        setMaxDamage(4);
         setRegistryName(name);
         setUnlocalizedName(name);
         setCreativeTab(CreativeTabs.COMBAT);
