@@ -23,17 +23,5 @@ run
 
 # Files from Forge MDK
 forge*changelog.txt
-paint files/diamondgrapple.pdn
-paint files/diamondgrapple.png
-paint files/grapple layout.pdn
-paint files/irongrapple.pdn
-paint files/irongrapple.png
-paint files/stonegrapple.pdn
-paint files/stonegrapple.png
-paint files/woodgrapple.pdn
-paint files/woodgrapple.png
-paint files/diamondnograpple.png
-paint files/ironnograpple.png
-paint files/stonenograpple.png
-paint files/woodnograpple.png
-sounds/grapple.ogg
+paint files/
+sounds/
