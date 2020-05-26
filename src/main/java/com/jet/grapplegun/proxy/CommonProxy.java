@@ -72,7 +72,7 @@ public class CommonProxy {
                     airFix = true;
             }
 
-            if(airFix) {
+            if(airFix && !event.getEntityPlayer().onGround) {
                 event.setNewSpeed(event.getNewSpeed() * 5);
             }
         }
