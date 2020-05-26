@@ -45,9 +45,18 @@ public class S_StopGrapple implements IMessage {
                     grapplePuller = (EntityGrapplePuller) readEntity;
 
                 if(grapplePuller != null) {
-                    grapplePuller.onKillCommand();
-                    if(message.cancelFallDamage)
-                        player.fallDistance = 0;
+                    if(grapplePuller.isHit() && grapplePuller.getLaunchMult() >= 1) {
+                        Entity pullEntity = grapplePuller.getPullEntity();
+                        if(pullEntity != null){
+                            pullEntity.motionX = 0;
+                            pullEntity.motionY = 0;
+                            pullEntity.motionZ = 0;
+                            pullEntity.velocityChanged = true;
+                        }
+                        grapplePuller.onKillCommand();
+                        if (message.cancelFallDamage)
+                            player.fallDistance = 0;
+                    }
                 }
             });
             return null;

@@ -29,7 +29,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     private boolean p_pullParent;
     private boolean p_sticking;
     private double p_stickHeight;
-    private boolean p_cancelled = false;
+    private boolean p_cancelledLastTick = false;
 
     private double c_pitch;
     private double c_lastPitch;
@@ -224,15 +224,14 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     }
 
     private void parentUpdate() {
-        if(!p_cancelled && Keyboard.isKeyDown(Keyboard.KEY_R)){
-            p_cancelled = true;
-            GrapplePacketManager.INSTANCE.sendToServer(new S_StopGrapple(this, p_sticking));
-            if(p_sticking)
-                sh_parentEntity.fallDistance = 0;
-        }
+        if(Keyboard.isKeyDown(Keyboard.KEY_R)){
+            if(!p_cancelledLastTick)
+                GrapplePacketManager.INSTANCE.sendToServer(new S_StopGrapple(this, p_sticking));
 
-        if(p_cancelled)
-            return;
+            p_cancelledLastTick = true;
+        }
+        else
+            p_cancelledLastTick = false;
 
         if(p_pullParent && sh_launchState == LaunchState.NONE) {
             Vec3d pullVel = getPullVel(getOffsetPullLocation(), sh_parentEntity.getPositionVector(), sh_parentGrapple.getPullSpeed());
@@ -243,11 +242,9 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
                 p_pullParent = false;
                 if (!Keyboard.isKeyDown(Keyboard.KEY_SPACE) && !entityIsCloseToGround(sh_parentEntity, sh_parentGrapple.getPullSpeed() + 0.5, pullVel.y)) {
                     p_sticking = true;
-                    sh_parentEntity.setNoGravity(true);
                 }
                 else {
                     GrapplePacketManager.INSTANCE.sendToServer(new S_StopGrapple(this, false));
-                    p_cancelled = true;
                 }
             }
         }
@@ -270,7 +267,6 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
                 sh_parentEntity.setVelocity(0, 0.6,0);
                 p_sticking = false;
                 p_stickHeight = 0;
-                p_cancelled = true;
             }
             // Hop down the grapple
             if (entityIsCloseToGround(sh_parentEntity, 1, 0 )) {
@@ -279,7 +275,6 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
                 sh_parentEntity.setVelocity(0, 0, 0);
                 p_sticking = false;
                 p_stickHeight = 0;
-                p_cancelled = true;
             }
         }
     }
@@ -298,6 +293,10 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
 
     public ItemGrapple getParentGrapple(){
         return sh_parentGrapple;
+    }
+
+    public Entity getPullEntity() {
+        return sh_pullEntity;
     }
 
     public Entity getParentEntity() {
@@ -342,6 +341,10 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
         return getRenderDouble(c_lastYaw, c_yaw, partialTicks);
     }
 
+    public double getLaunchMult() {
+        return 1 - (sh_curLaunchTime/sh_launchTime);
+    }
+
     public double getRenderLaunchMult(float partialTicks){
         if(sh_launchState == LaunchState.NONE)
             return 1;
@@ -350,6 +353,10 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
             double lastLaunchMult = (double)sh_lastLaunchTime/sh_launchTime;
             return 1 - getRenderDouble(lastLaunchMult, curLaunchMult, partialTicks);
         }
+    }
+
+    public boolean isHit() {
+        return sh_hit;
     }
 
     private Vec3d getRenderVec(Vec3d prevPos, Vec3d curPos, float partialTicks) {

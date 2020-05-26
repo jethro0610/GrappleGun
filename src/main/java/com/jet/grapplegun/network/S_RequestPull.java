@@ -97,16 +97,7 @@ public class S_RequestPull implements IMessage {
                 }
 
                 if(parentGrapple != null && parentEntity != null && parentGrapple.getChildPuller() == null && canGrapple) {
-                    Vec3d offsetPullLocation = new Vec3d(
-                            parentEntity.posX-message.pullLocation.x,
-                            parentEntity.posY-message.pullLocation.y,
-                            parentEntity.posZ-message.pullLocation.z);
-
-                    offsetPullLocation = offsetPullLocation.scale(1/offsetPullLocation.lengthVector());
-                    offsetPullLocation = offsetPullLocation.scale(0.5);
-                    Vec3d newPullLocation = message.pullLocation.add(offsetPullLocation);
-
-                    EntityGrapplePuller newPuller = new EntityGrapplePuller(player.getServerWorld(), parentGrapple, parentEntity, newPullLocation, pullEntity, message.hit);
+                    EntityGrapplePuller newPuller = new EntityGrapplePuller(player.getServerWorld(), parentGrapple, parentEntity, message.pullLocation, pullEntity, message.hit);
                     player.getServerWorld().spawnEntity(newPuller);
                 }
             });

@@ -17,7 +17,6 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -124,14 +123,12 @@ public class ItemGrapple extends Item {
 
     public void onPullerDestroyed(Entity parentEntity) {
         sh_childPuller = null;
+
         if (parentEntity == null)
             return;
+
         if(!parentEntity.getEntityWorld().isRemote)
             GrapplePacketManager.INSTANCE.sendToAll(new C_DestroyedPuller(this, parentEntity));
-        else {
-            if (parentEntity == GrappleGunMod.proxy.getPlayer())
-                parentEntity.setNoGravity(false);
-        }
     }
 
     public double getRange() {
