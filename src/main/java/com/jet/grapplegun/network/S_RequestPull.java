@@ -2,11 +2,13 @@ package com.jet.grapplegun.network;
 
 import com.jet.grapplegun.EntityGrapplePuller;
 import com.jet.grapplegun.ItemGrapple;
+import com.jet.grapplegun.SoundHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -97,6 +99,7 @@ public class S_RequestPull implements IMessage {
                 }
 
                 if(parentGrapple != null && parentEntity != null && parentGrapple.getChildPuller() == null && canGrapple) {
+                    player.getServerWorld().playSound(null, player.posX, player.posY, player.posZ, SoundHandler.GRAPPLE_FIRE, SoundCategory.MASTER, 1.0f, 1.0f);
                     EntityGrapplePuller newPuller = new EntityGrapplePuller(player.getServerWorld(), parentGrapple, parentEntity, message.pullLocation, pullEntity, message.hit);
                     player.getServerWorld().spawnEntity(newPuller);
                 }

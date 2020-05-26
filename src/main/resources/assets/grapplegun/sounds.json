@@ -1,0 +1,7 @@
+{
+  "grapplefire": {
+    "category": "master",
+    "subtitle": "grapplegun.subtitle.grapplefire",
+    "sounds": ["grapplegun:grapplefire"]
+  }
+}
