@@ -29,10 +29,10 @@ public class RenderGrapplePuller extends RenderEntity {
             return;
 
         Vec3d renderPos = grapplePuller.getRenderPosition(partialTicks);
-        Vec3d drawOrigin = new Vec3d(x, y + grapplePuller.getParentEntity().getEyeHeight() / 2, z);
+        Vec3d drawOrigin = new Vec3d(x, y + grapplePuller.getParentEntity().getEyeHeight() / 1.3, z);
 
         Vec3d renderEndPointPos = grapplePuller.getRenderPullLocation(partialTicks);
-        renderEndPointPos = renderEndPointPos.subtract(0, grapplePuller.getParentEntity().getEyeHeight() / 2, 0);
+        renderEndPointPos = renderEndPointPos.subtract(0, grapplePuller.getParentEntity().getEyeHeight() / 1.3, 0);
         Vec3d vectorToEndPoint = renderEndPointPos.subtract(renderPos);
         vectorToEndPoint = vectorToEndPoint.scale(grapplePuller.getRenderLaunchMult(partialTicks));
 

@@ -129,6 +129,8 @@ public class ItemGrapple extends Item {
 
         if(!parentEntity.getEntityWorld().isRemote)
             GrapplePacketManager.INSTANCE.sendToAll(new C_DestroyedPuller(this, parentEntity));
+        else
+            parentEntity.setNoGravity(false);
     }
 
     public double getRange() {
