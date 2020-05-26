@@ -60,6 +60,7 @@ public class ClientProxy extends CommonProxy {
             ModelLoader.setCustomModelResourceLocation(woodGrapple, 0, new ModelResourceLocation(woodGrapple.getRegistryName(), "inventory"));
             ModelLoader.setCustomModelResourceLocation(stoneGrapple, 0, new ModelResourceLocation(stoneGrapple.getRegistryName(), "inventory"));
             ModelLoader.setCustomModelResourceLocation(ironGrapple, 0, new ModelResourceLocation(ironGrapple.getRegistryName(), "inventory"));
+            ModelLoader.setCustomModelResourceLocation(goldGrapple, 0, new ModelResourceLocation(goldGrapple.getRegistryName(), "inventory"));
             ModelLoader.setCustomModelResourceLocation(diamondGrapple, 0, new ModelResourceLocation(diamondGrapple.getRegistryName(), "inventory"));
         }
     }

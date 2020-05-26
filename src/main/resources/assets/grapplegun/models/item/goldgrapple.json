@@ -1,0 +1,32 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "grapplegun:items/goldgrapple"
+  },
+
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [0, 90, -45],
+      "translation": [-1, 2, -2]
+    },
+    "thirdperson_righthand": {
+      "rotation": [0, 90, -45],
+      "translation": [0, 0, -5],
+      "scale": [0.75, 0.75, 0.75]
+    },
+    "firstperson_lefthand": {
+      "rotation": [0, -90, 45],
+      "translation": [-1, 2, -2]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [0, -90, 45],
+      "translation": [0, 0, -5],
+      "scale": [0.75, 0.75, 0.75]
+    }
+  },
+
+  "overrides": [
+    {"predicate": {"grapplegun:state": 0.0}, "model": "grapplegun:item/goldgrapple"},
+    {"predicate": {"grapplegun:state": 1.0}, "model": "grapplegun:item/goldnograpple"}
+  ]
+}
