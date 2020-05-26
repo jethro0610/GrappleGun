@@ -2,11 +2,14 @@ package com.jet.grapplegun.proxy;
 
 import com.jet.grapplegun.*;
 import com.jet.grapplegun.network.GrapplePacketManager;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.entity.player.ArrowLooseEvent;
+import net.minecraftforge.event.entity.player.ArrowNockEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -74,6 +77,26 @@ public class CommonProxy {
             if(airFix && !event.getEntityPlayer().onGround) {
                 event.setNewSpeed(event.getNewSpeed() * 5);
             }
+        }
+
+        @SubscribeEvent
+        public static void arrowFire(ArrowLooseEvent event) {
+            boolean isGrappling = false;
+            Item mainItem = event.getEntityPlayer().getHeldItemMainhand().getItem();
+            Item offItem = event.getEntityPlayer().getHeldItemOffhand().getItem();
+
+            if(mainItem instanceof ItemGrapple){
+                if(((ItemGrapple) mainItem).getChildPuller() != null)
+                    isGrappling = true;
+            }
+
+            if(offItem instanceof ItemGrapple){
+                if(((ItemGrapple) offItem).getChildPuller() != null)
+                    isGrappling = true;
+            }
+
+            if(isGrappling)
+                event.getEntityPlayer().setVelocity(0, 0,0);
         }
     }
 }
