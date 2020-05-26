@@ -1,13 +1,11 @@
 package com.jet.grapplegun.network;
 
 import com.jet.grapplegun.EntityGrapplePuller;
-import com.jet.grapplegun.ItemGrapple;
 import com.jet.grapplegun.SoundHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
