@@ -166,7 +166,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
             return;
         }
         if(sh_parentEntity != null) {
-            setPosition(sh_parentEntity.posX, sh_parentEntity.posY, sh_parentEntity.posZ);
+            setPositionAndUpdate(sh_parentEntity.posX, sh_parentEntity.posY, sh_parentEntity.posZ);
             if(sh_parentEntity instanceof EntityPlayerMP){
                 EntityPlayerMP player = (EntityPlayerMP) sh_parentEntity;
                 player.capabilities.allowFlying = true;
@@ -229,7 +229,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
             sh_parentEntity.setVelocity(pullVel.x, pullVel.y, pullVel.z);
 
             // Stop pulling the player
-            if(sh_parentEntity.getPositionVector().distanceTo(sh_pullLocation) < 2.5) {
+            if(sh_parentEntity.getPositionVector().distanceTo(sh_pullLocation) < (getMinPullSpeed(1.25) * 2)) {
                 p_pullParent = false;
                 if (!Keyboard.isKeyDown(Keyboard.KEY_SPACE) && !entityIsCloseToGround(sh_parentEntity, sh_parentGrapple.getPullSpeed() + 0.5, pullVel.y)) {
                     p_sticking = true;
@@ -303,6 +303,13 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
 
     public Entity getParentEntity() {
         return sh_parentEntity;
+    }
+
+    private double getMinPullSpeed(double clamp) {
+        if(sh_parentGrapple.getPullSpeed() > clamp)
+            return sh_parentGrapple.getPullSpeed();
+        else
+            return clamp;
     }
 
     public Vec3d getPullLocation() {
