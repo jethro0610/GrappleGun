@@ -28,7 +28,7 @@ public class ItemGrapple extends Item {
     private double sh_launchTime;
     private RopeColor sh_color;
 
-    public ItemGrapple(String name, double range, double pullSpeed, double launchTime, RopeColor color) {
+    public ItemGrapple(String name, double range, double pullSpeed, double launchTime, int durability, RopeColor color) {
         addPropertyOverride(new ResourceLocation(GrappleGunMod.MODID, "state"), new IItemPropertyGetter() {
             @Override
             public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
@@ -40,7 +40,7 @@ public class ItemGrapple extends Item {
                     return stack.getTagCompound().getInteger("PullerID") != -1 ? 1.0f : 0.0f;
             }
         });
-        setMaxDamage(4);
+        setMaxDamage(durability);
         setRegistryName(name);
         setUnlocalizedName(name);
         setCreativeTab(CreativeTabs.COMBAT);
