@@ -4,10 +4,13 @@ import com.jet.grapplegun.network.*;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -15,8 +18,9 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import org.lwjgl.input.Keyboard;
 
 public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpawnData {
-    private ItemGrapple sh_parentGrapple;
-    private Entity sh_parentEntity;
+    private EnumHand sh_grappleHand;
+    private ItemStack sh_parentStack;
+    private EntityPlayer sh_parentEntity;
     private Vec3d sh_pullLocation;
     private Entity sh_pullEntity;
 
@@ -38,34 +42,49 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
 
     public EntityGrapplePuller(World world) { super(world); }
 
-    public EntityGrapplePuller(World world, ItemGrapple parentGrapple, Entity parentEntity, Vec3d pullLocation, Entity pullEntity, boolean hit) {
+    public EntityGrapplePuller(World world, EnumHand grappleHand, EntityPlayer parentEntity, Vec3d pullLocation, Entity pullEntity, boolean hit) {
         super(world);
         sh_parentEntity = parentEntity;
-        sh_parentGrapple = parentGrapple;
+        sh_grappleHand = grappleHand;
+        sh_parentStack = parentEntity.getHeldItem(grappleHand);
         sh_pullLocation = pullLocation;
         sh_pullEntity = pullEntity;
         sh_hit = hit;
         setPositionAndUpdate(parentEntity.posX, parentEntity.posY, parentEntity.posZ);
 
         if(sh_pullEntity == null)
-            sh_launchTime = sh_parentEntity.getPositionVector().distanceTo(sh_pullLocation) / sh_parentGrapple.getRange();
+            sh_launchTime = sh_parentEntity.getPositionVector().distanceTo(sh_pullLocation) / getParentGrapple().getRange();
         else
-            sh_launchTime = sh_parentEntity.getPositionVector().distanceTo(sh_pullEntity.getPositionVector()) / sh_parentGrapple.getRange();
-        sh_launchTime *= sh_parentGrapple.getLaunchTime();
+            sh_launchTime = sh_parentEntity.getPositionVector().distanceTo(sh_pullEntity.getPositionVector()) / getParentGrapple().getRange();
+        sh_launchTime *= getParentGrapple().getLaunchTime();
 
         sh_curLaunchTime = sh_launchTime;
         sh_lastLaunchTime = sh_curLaunchTime;
         sh_launchState = LaunchState.LAUNCHING;
 
-        sh_parentGrapple.setChildPuller(this);
+        NBTTagCompound parentNBT;
+        if(sh_parentStack.hasTagCompound())
+            parentNBT = sh_parentStack.getTagCompound();
+        else
+            parentNBT = new NBTTagCompound();
+
+        parentNBT.setInteger("PullerID", getEntityId());
+        sh_parentStack.setTagCompound(parentNBT);
     }
 
     @Override
     public void onKillCommand() {
         super.onKillCommand();
 
-        if(sh_parentGrapple != null) {
-            sh_parentGrapple.onPullerDestroyed(sh_parentEntity);
+        if(sh_parentStack != null) {
+            NBTTagCompound parentNBT;
+            if(sh_parentStack.hasTagCompound())
+                parentNBT = sh_parentStack.getTagCompound();
+            else
+                parentNBT = new NBTTagCompound();
+
+            parentNBT.setInteger("PullerID", -1);
+            sh_parentStack.setTagCompound(parentNBT);
         }
         if(sh_parentEntity != null) {
             if(sh_parentEntity instanceof EntityPlayerMP){
@@ -77,7 +96,11 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
 
     @Override
     public void writeSpawnData(ByteBuf buf) {
-        buf.writeInt(Item.getIdFromItem(sh_parentGrapple));
+        if(sh_grappleHand == EnumHand.MAIN_HAND)
+            buf.writeInt(0);
+        else
+            buf.writeInt(1);
+
         buf.writeInt(sh_parentEntity.getEntityId());
         buf.writeDouble(sh_pullLocation.x);
         buf.writeDouble(sh_pullLocation.y);
@@ -91,14 +114,17 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
 
     @Override
     public void readSpawnData(ByteBuf buf) {
-        Item readItem = Item.getItemById(buf.readInt());
-        if(readItem != null && readItem instanceof ItemGrapple)
-            sh_parentGrapple = (ItemGrapple) readItem;
-        sh_parentGrapple.setChildPuller(this);
+        int handInt = buf.readInt();
+        if(handInt == 0)
+            sh_grappleHand = EnumHand.MAIN_HAND;
+        else
+            sh_grappleHand = EnumHand.OFF_HAND;
 
         Entity readParentEntity = getEntityWorld().getEntityByID(buf.readInt());
         if(readParentEntity != null)
-            sh_parentEntity = readParentEntity;
+            sh_parentEntity = (EntityPlayer) readParentEntity;
+
+        sh_parentStack = sh_parentEntity.getHeldItem(sh_grappleHand);
 
         double x = buf.readDouble();
         double y = buf.readDouble();
@@ -117,17 +143,16 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
         if(sh_parentEntity == GrappleGunMod.proxy.getPlayer() && sh_pullEntity == null)
             p_pullParent = true;
 
-        Vec3d vectorToLocation;
         if(sh_pullEntity == null)
             recalculatePitchYaw(sh_pullLocation);
         else
             recalculatePitchYaw(sh_pullEntity.getPositionVector());
 
         if(sh_pullEntity == null)
-            sh_launchTime = sh_parentEntity.getPositionVector().distanceTo(sh_pullLocation) / sh_parentGrapple.getRange();
+            sh_launchTime = sh_parentEntity.getPositionVector().distanceTo(sh_pullLocation) / getParentGrapple().getRange();
         else
-            sh_launchTime = sh_parentEntity.getPositionVector().distanceTo(sh_pullEntity.getPositionVector()) / sh_parentGrapple.getRange();
-        sh_launchTime *= sh_parentGrapple.getLaunchTime();
+            sh_launchTime = sh_parentEntity.getPositionVector().distanceTo(sh_pullEntity.getPositionVector()) / getParentGrapple().getRange();
+        sh_launchTime *= getParentGrapple().getLaunchTime();
 
         sh_curLaunchTime = sh_launchTime;
         sh_lastLaunchTime = sh_curLaunchTime;
@@ -171,6 +196,10 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
                 EntityPlayerMP player = (EntityPlayerMP) sh_parentEntity;
                 player.capabilities.allowFlying = true;
             }
+
+            if(sh_parentEntity.getHeldItemMainhand() != sh_parentStack && sh_parentEntity.getHeldItemOffhand()!= sh_parentStack){
+                onKillCommand();
+            }
         }
         else {
             onKillCommand();
@@ -179,7 +208,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
 
         if(sh_pullEntity != null && sh_launchState == LaunchState.NONE) {
             if(!(sh_pullEntity instanceof EntityPlayer)) {
-                Vec3d pullVel = getPullVel(sh_parentEntity.getPositionEyes(1), sh_pullEntity.getPositionVector(), sh_parentGrapple.getPullSpeed());
+                Vec3d pullVel = getPullVel(sh_parentEntity.getPositionEyes(1), sh_pullEntity.getPositionVector(), getParentGrapple().getPullSpeed());
                 sh_pullEntity.motionX = pullVel.x;
                 sh_pullEntity.motionY = pullVel.y;
                 sh_pullEntity.motionZ = pullVel.z;
@@ -225,13 +254,13 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
             p_cancelledLastTick = false;
 
         if(p_pullParent && sh_launchState == LaunchState.NONE) {
-            Vec3d pullVel = getPullVel(getOffsetPullLocation(), sh_parentEntity.getPositionVector(), sh_parentGrapple.getPullSpeed());
+            Vec3d pullVel = getPullVel(getOffsetPullLocation(), sh_parentEntity.getPositionVector(), getParentGrapple().getPullSpeed());
             sh_parentEntity.setVelocity(pullVel.x, pullVel.y, pullVel.z);
 
             // Stop pulling the player
             if(sh_parentEntity.getPositionVector().distanceTo(sh_pullLocation) < (getMinPullSpeed(1.25) * 2)) {
                 p_pullParent = false;
-                if (!Keyboard.isKeyDown(Keyboard.KEY_SPACE) && !entityIsCloseToGround(sh_parentEntity, sh_parentGrapple.getPullSpeed() + 0.5, pullVel.y)) {
+                if (!Keyboard.isKeyDown(Keyboard.KEY_SPACE) && !entityIsCloseToGround(sh_parentEntity, getParentGrapple().getPullSpeed() + 0.5, pullVel.y)) {
                     p_sticking = true;
                 }
                 else {
@@ -283,18 +312,21 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
 
     private void pulledPlayerUpdate(){
         if(sh_pullEntity != null && sh_pullEntity == Minecraft.getMinecraft().player && sh_launchState == LaunchState.NONE) {
-            if(sh_pullEntity.getPositionVector().distanceTo(sh_parentEntity.getPositionEyes(1)) < sh_parentGrapple.getPullSpeed()) {
+            if(sh_pullEntity.getPositionVector().distanceTo(sh_parentEntity.getPositionEyes(1)) < getParentGrapple().getPullSpeed()) {
                 sh_pullEntity.setVelocity(0, 0, 0);
             }
             else {
-                Vec3d pullVel = getPullVel(sh_parentEntity.getPositionEyes(1), sh_pullEntity.getPositionVector(), sh_parentGrapple.getPullSpeed());
+                Vec3d pullVel = getPullVel(sh_parentEntity.getPositionEyes(1), sh_pullEntity.getPositionVector(), getParentGrapple().getPullSpeed());
                 sh_pullEntity.setVelocity(pullVel.x, pullVel.y, pullVel.z);
             }
         }
     }
 
     public ItemGrapple getParentGrapple(){
-        return sh_parentGrapple;
+        if(sh_parentStack.getItem() instanceof ItemGrapple)
+            return (ItemGrapple) sh_parentStack.getItem();
+        else
+            return null;
     }
 
     public Entity getPullEntity() {
@@ -306,8 +338,8 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
     }
 
     private double getMinPullSpeed(double clamp) {
-        if(sh_parentGrapple.getPullSpeed() > clamp)
-            return sh_parentGrapple.getPullSpeed();
+        if(getParentGrapple().getPullSpeed() > clamp)
+            return getParentGrapple().getPullSpeed();
         else
             return clamp;
     }

@@ -13,6 +13,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -27,13 +28,16 @@ public class ItemGrapple extends Item {
     private double sh_launchTime;
     private RopeColor sh_color;
 
-    private EntityGrapplePuller sh_childPuller;
-
     public ItemGrapple(String name, double range, double pullSpeed, double launchTime, RopeColor color) {
         addPropertyOverride(new ResourceLocation(GrappleGunMod.MODID, "state"), new IItemPropertyGetter() {
             @Override
             public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
-                return sh_childPuller == null ? 0.0f : 1.0f;
+                if(!stack.hasTagCompound())
+                    return 0.0f;
+                else if(!stack.getTagCompound().hasKey("PullerID"))
+                    return 0.0f;
+                else
+                    return stack.getTagCompound().getInteger("PullerID") != -1 ? 1.0f : 0.0f;
             }
         });
         setMaxDamage(4);
@@ -49,10 +53,26 @@ public class ItemGrapple extends Item {
     }
 
     @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        if(!slotChanged)
+            return false;
+
+        return !oldStack.equals(newStack);
+    }
+
+    @Override
     public boolean onDroppedByPlayer(ItemStack item, EntityPlayer player) {
-        if(sh_childPuller != null) {
-            sh_childPuller.onKillCommand();
-            sh_childPuller = null;
+        if(item.hasTagCompound()){
+            NBTTagCompound nbt = item.getTagCompound();
+            if(nbt.hasKey("PullerID")){
+                int pullerID = nbt.getInteger("PullerID");
+                if(pullerID != -1) {
+                    EntityGrapplePuller entityPuller = (EntityGrapplePuller) player.getEntityWorld().getEntityByID(pullerID);
+                    nbt.setInteger("PullerID", -1);
+                    item.setTagCompound(nbt);
+                    entityPuller.onKillCommand();
+                }
+            }
         }
         return true;
     }
@@ -74,26 +94,14 @@ public class ItemGrapple extends Item {
 
         if(entityDistance == Double.POSITIVE_INFINITY && rayDistance == Double.POSITIVE_INFINITY) {
             Vec3d missVector = playerIn.getPositionEyes(1).add(playerIn.getLookVec().scale(sh_range));
-            GrapplePacketManager.INSTANCE.sendToServer(new S_RequestPull(this, playerIn, missVector, null, false));
+            GrapplePacketManager.INSTANCE.sendToServer(new S_RequestPull(handIn, playerIn, missVector, null, false));
         }
         else if(entityDistance < rayDistance)
-            GrapplePacketManager.INSTANCE.sendToServer(new S_RequestPull(this, playerIn, Vec3d.ZERO, hitEntity, true));
+            GrapplePacketManager.INSTANCE.sendToServer(new S_RequestPull(handIn, playerIn, Vec3d.ZERO, hitEntity, true));
         else
-            GrapplePacketManager.INSTANCE.sendToServer(new S_RequestPull(this, playerIn, rayResult.hitVec, null, true));
+            GrapplePacketManager.INSTANCE.sendToServer(new S_RequestPull(handIn, playerIn, rayResult.hitVec, null, true));
 
         return new ActionResult<ItemStack>(EnumActionResult.PASS, playerIn.getHeldItem(handIn));
-    }
-
-    @Override
-    public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
-        if(entityIn instanceof EntityPlayer){
-            EntityPlayer player = (EntityPlayer) entityIn;
-
-            if(player.getHeldItemMainhand().getItem() != this && player.getHeldItemOffhand().getItem() != this){
-                if(sh_childPuller != null && !worldIn.isRemote)
-                    sh_childPuller.onKillCommand();
-            }
-        }
     }
 
     Entity raytraceEntities(EntityPlayer playerIn, World worldIn){
@@ -128,8 +136,6 @@ public class ItemGrapple extends Item {
     }
 
     public void onPullerDestroyed(Entity parentEntity) {
-        sh_childPuller = null;
-
         if (parentEntity == null)
             return;
 
@@ -154,8 +160,4 @@ public class ItemGrapple extends Item {
     public RopeColor getColor() {
         return sh_color;
     }
-
-    public void setChildPuller(EntityGrapplePuller newChild) { sh_childPuller = newChild; }
-
-    public EntityGrapplePuller getChildPuller() { return sh_childPuller; }
 }

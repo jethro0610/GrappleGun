@@ -5,9 +5,11 @@ import com.jet.grapplegun.ItemGrapple;
 import com.jet.grapplegun.SoundHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
@@ -21,14 +23,18 @@ import java.util.List;
 public class S_RequestPull implements IMessage {
     public S_RequestPull(){}
 
-    private int grappleID;
+    private int handInt;
     private int parentEntityID;
     private Vec3d pullLocation;
     private int pullEntityID;
     private boolean hit;
 
-    public S_RequestPull(Item itemGrapple, Entity parentEntity, Vec3d pullLocation, Entity pullEntity, boolean hit) {
-        grappleID = Item.getIdFromItem(itemGrapple);
+    public S_RequestPull(EnumHand grappleHand, Entity parentEntity, Vec3d pullLocation, Entity pullEntity, boolean hit) {
+        if(grappleHand == EnumHand.MAIN_HAND)
+            handInt = 0;
+        else
+            handInt = 1;
+
         parentEntityID = parentEntity.getEntityId();
         this.pullLocation = pullLocation;
         if(pullEntity != null)
@@ -39,7 +45,7 @@ public class S_RequestPull implements IMessage {
     }
 
     @Override public void toBytes(ByteBuf buf) {
-        buf.writeInt(grappleID);
+        buf.writeInt(handInt);
         buf.writeInt(parentEntityID);
         buf.writeDouble(pullLocation.x);
         buf.writeDouble(pullLocation.y);
@@ -49,7 +55,7 @@ public class S_RequestPull implements IMessage {
     }
 
     @Override public void fromBytes(ByteBuf buf) {
-        grappleID = buf.readInt();
+        handInt = buf.readInt();
         parentEntityID = buf.readInt();
 
         double x = buf.readDouble();
@@ -69,17 +75,21 @@ public class S_RequestPull implements IMessage {
             EntityPlayerMP player = ctx.getServerHandler().player;
 
             player.getServerWorld().addScheduledTask(() -> {
-                ItemGrapple parentGrapple = null;
-                Entity parentEntity = null;
+                EntityPlayer parentEntity = null;
+                ItemStack parentStack = null;
                 Entity pullEntity = null;
 
-                Item readItem = Item.getItemById(message.grappleID);
-                if(readItem != null && readItem instanceof ItemGrapple)
-                    parentGrapple = (ItemGrapple) readItem;
+                EnumHand grappleHand;
+                if(message.handInt == 0)
+                    grappleHand = EnumHand.MAIN_HAND;
+                else
+                    grappleHand = EnumHand.OFF_HAND;
 
                 Entity readParentEntity = player.getServerWorld().getEntityByID(message.parentEntityID);
-                if(readParentEntity != null)
-                    parentEntity = readParentEntity;
+                if(readParentEntity != null && readParentEntity instanceof EntityPlayer)
+                    parentEntity = (EntityPlayer) readParentEntity;
+
+                parentStack = parentEntity.getHeldItem(grappleHand);
 
                 if(message.pullEntityID != 0) {
                     Entity readPullEntity = player.getServerWorld().getEntityByID(message.pullEntityID);
@@ -88,31 +98,29 @@ public class S_RequestPull implements IMessage {
                 }
 
                 boolean canGrapple = true;
-                Item mainItem = player.getHeldItem(EnumHand.MAIN_HAND).getItem();
-                Item offItem = player.getHeldItem(EnumHand.OFF_HAND).getItem();
-                ItemStack grappleStack = null;
-                if(mainItem instanceof ItemGrapple) {
-                    if(((ItemGrapple) mainItem).getChildPuller() != null)
-                        canGrapple = false;
+                ItemStack mainItem = parentEntity.getHeldItemMainhand();
+                ItemStack offItem = parentEntity.getHeldItemOffhand();
 
-                    if(((ItemGrapple) mainItem) == parentGrapple){
-                        grappleStack = player.getHeldItem(EnumHand.MAIN_HAND);
+                if(mainItem.hasTagCompound()){
+                    NBTTagCompound nbt = mainItem.getTagCompound();
+                    if(nbt.hasKey("PullerID")){
+                        if(nbt.getInteger("PullerID") != -1)
+                            canGrapple = false;
                     }
                 }
-                if(offItem instanceof ItemGrapple) {
-                    if(((ItemGrapple) offItem).getChildPuller() != null)
-                        canGrapple = false;
 
-                    if(((ItemGrapple) offItem) == parentGrapple){
-                        grappleStack = player.getHeldItem(EnumHand.MAIN_HAND);
+                if(offItem.hasTagCompound()){
+                    NBTTagCompound nbt = offItem.getTagCompound();
+                    if(nbt.hasKey("PullerID")){
+                        if(nbt.getInteger("PullerID") != -1)
+                            canGrapple = false;
                     }
                 }
                 
-                if(parentGrapple != null && parentEntity != null && parentGrapple.getChildPuller() == null && canGrapple) {
-                    grappleStack.damageItem(1, player);
-                    new ItemStack(parentGrapple).damageItem(1, player);
+                if(parentStack != null && parentEntity != null && canGrapple) {
+                    parentStack.damageItem(1, player);
                     player.getServerWorld().playSound(null, player.posX, player.posY, player.posZ, SoundHandler.GRAPPLE_FIRE, SoundCategory.MASTER, 1.0f, 1.0f);
-                    EntityGrapplePuller newPuller = new EntityGrapplePuller(player.getServerWorld(), parentGrapple, parentEntity, message.pullLocation, pullEntity, message.hit);
+                    EntityGrapplePuller newPuller = new EntityGrapplePuller(player.getServerWorld(), grappleHand, parentEntity, message.pullLocation, pullEntity, message.hit);
                     player.getServerWorld().spawnEntity(newPuller);
                 }
             });

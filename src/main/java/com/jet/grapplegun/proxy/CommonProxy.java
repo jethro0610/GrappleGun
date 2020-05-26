@@ -5,6 +5,8 @@ import com.jet.grapplegun.network.GrapplePacketManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
@@ -61,17 +63,23 @@ public class CommonProxy {
         @SubscribeEvent
         public static void blockBreak(PlayerEvent.BreakSpeed event) {
             boolean airFix = false;
-            Item mainItem = event.getEntityPlayer().getHeldItemMainhand().getItem();
-            Item offItem = event.getEntityPlayer().getHeldItemOffhand().getItem();
+            ItemStack mainItem = event.getEntityPlayer().getHeldItemMainhand();
+            ItemStack offItem = event.getEntityPlayer().getHeldItemOffhand();
 
-            if(mainItem instanceof ItemGrapple){
-                if(((ItemGrapple) mainItem).getChildPuller() != null)
-                    airFix = true;
+            if(mainItem.hasTagCompound()){
+                NBTTagCompound nbt = mainItem.getTagCompound();
+                if(nbt.hasKey("PullerID")){
+                    if(nbt.getInteger("PullerID") != -1)
+                        airFix = true;
+                }
             }
 
-            if(offItem instanceof ItemGrapple){
-                if(((ItemGrapple) offItem).getChildPuller() != null)
-                    airFix = true;
+            if(offItem.hasTagCompound()){
+                NBTTagCompound nbt = offItem.getTagCompound();
+                if(nbt.hasKey("PullerID")){
+                    if(nbt.getInteger("PullerID") != -1)
+                        airFix = true;
+                }
             }
 
             if(airFix && !event.getEntityPlayer().onGround) {
@@ -82,17 +90,23 @@ public class CommonProxy {
         @SubscribeEvent
         public static void arrowFire(ArrowLooseEvent event) {
             boolean isGrappling = false;
-            Item mainItem = event.getEntityPlayer().getHeldItemMainhand().getItem();
-            Item offItem = event.getEntityPlayer().getHeldItemOffhand().getItem();
+            ItemStack mainItem = event.getEntityPlayer().getHeldItemMainhand();
+            ItemStack offItem = event.getEntityPlayer().getHeldItemOffhand();
 
-            if(mainItem instanceof ItemGrapple){
-                if(((ItemGrapple) mainItem).getChildPuller() != null)
-                    isGrappling = true;
+            if(mainItem.hasTagCompound()){
+                NBTTagCompound nbt = mainItem.getTagCompound();
+                if(nbt.hasKey("PullerID")){
+                    if(nbt.getInteger("PullerID") != -1)
+                        isGrappling = true;
+                }
             }
 
-            if(offItem instanceof ItemGrapple){
-                if(((ItemGrapple) offItem).getChildPuller() != null)
-                    isGrappling = true;
+            if(offItem.hasTagCompound()){
+                NBTTagCompound nbt = offItem.getTagCompound();
+                if(nbt.hasKey("PullerID")){
+                    if(nbt.getInteger("PullerID") != -1)
+                        isGrappling = true;
+                }
             }
 
             if(isGrappling)
