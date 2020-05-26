@@ -1,5 +1,6 @@
 package com.jet.grapplegun;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -36,16 +37,11 @@ public class RenderGrapplePuller extends RenderEntity {
         Vec3d vectorToEndPoint = renderEndPointPos.subtract(renderPos);
         vectorToEndPoint = vectorToEndPoint.scale(grapplePuller.getRenderLaunchMult(partialTicks));
 
-        GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
-        GL11.glDisable(GL11.GL_CULL_FACE);
         GL11.glDisable(GL11.GL_LIGHTING);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
-
-        GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         RopeColor ropeColor = grapplePuller.getParentGrapple().getColor();
-        GL11.glColor4d(ropeColor.red, ropeColor.green, ropeColor.blue, 255);
 
         // Shrink the line width based on the distance of the camera
         float cameraDist = (float) renderManager.getDistanceToCamera(x, y, z);
@@ -53,7 +49,6 @@ public class RenderGrapplePuller extends RenderEntity {
             cameraDist = 12;
         GL11.glLineWidth(15 - cameraDist);
 
-        GL11.glDepthMask(false);
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder vertexbuffer = tessellator.getBuffer();
         vertexbuffer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR);
@@ -77,27 +72,18 @@ public class RenderGrapplePuller extends RenderEntity {
         vertexbuffer.endVertex();
         tessellator.draw();
 
-        GL11.glDepthMask(true);
-        GL11.glPopAttrib();
-
-        double distanceToPoint = grapplePuller.getParentEntity().getPositionVector().distanceTo(grapplePuller.getPullLocation());
-        if(distanceToPoint <= 2.1 && renderManager.options.thirdPersonView == 0)
-            return;
-
-        GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glDisable(GL11.GL_BLEND);
 
-        GlStateManager.pushMatrix();
-        GlStateManager.disableCull();
-        GlStateManager.enableTexture2D();
-        GlStateManager.translate(drawOrigin.x + vectorToEndPoint.x, drawOrigin.y + vectorToEndPoint.y, drawOrigin.z + vectorToEndPoint.z);
-
+        // Draw head
+        GL11.glPushMatrix();
+        GL11.glDisable(GL11.GL_LIGHTING);
+        GL11.glTranslated(drawOrigin.x + vectorToEndPoint.x, drawOrigin.y + vectorToEndPoint.y, drawOrigin.z + vectorToEndPoint.z);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glColor4f(ropeColor.red/255.0f, ropeColor.green/255.0f, ropeColor.blue/255.0f, 1.0f);
         bindTexture(HEAD_TEXTURE);
-        mainModel.render(entity, 0, 0, 0, (float)grapplePuller.getRenderYaw(partialTicks), (float)grapplePuller.getRenderPitch(partialTicks), 1);
-
-        GlStateManager.enableCull();
-        GlStateManager.popMatrix();
+        mainModel.render(entity, 0, 0, 0, (float)grapplePuller.getRenderYaw(partialTicks), (float)grapplePuller.getRenderPitch(partialTicks), 0.5f);
+        GL11.glEnable(GL11.GL_LIGHTING);
+        GL11.glPopMatrix();
     }
 }

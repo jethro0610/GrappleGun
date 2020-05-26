@@ -27,6 +27,6 @@ public class ModelGrapple extends ModelBase {
     public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
         plane1.rotateAngleZ = headPitch;
         renderer.rotateAngleY = netHeadYaw;
-        renderer.render(1.0f/16);
+        renderer.render(scale/16);
     }
 }
