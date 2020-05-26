@@ -1,0 +1,27 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "grapplegun:items/irongrapple"
+  },
+
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [0, 90, -45],
+      "translation": [-1, 2, -2]
+    },
+    "thirdperson_righthand": {
+      "rotation": [0, 90, -45],
+      "translation": [0, 0, -5],
+      "scale": [0.75, 0.75, 0.75]
+    },
+    "firstperson_lefthand": {
+      "rotation": [0, -90, 45],
+      "translation": [-1, 2, -2]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [0, -90, 45],
+      "translation": [0, 0, -5],
+      "scale": [0.75, 0.75, 0.75]
+    }
+  }
+}

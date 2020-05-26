@@ -186,7 +186,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
                 sh_pullEntity.velocityChanged = true;
             }
 
-            if(sh_pullEntity.getPositionVector().distanceTo(sh_parentEntity.getPositionEyes(1)) < sh_parentGrapple.getPullSpeed()) {
+            if(sh_pullEntity.getPositionVector().distanceTo(sh_parentEntity.getPositionEyes(1)) < 2) {
                 if(!(sh_pullEntity instanceof EntityPlayer)) {
                     sh_pullEntity.motionX = 0;
                     sh_pullEntity.motionY = 0;
@@ -229,7 +229,7 @@ public class EntityGrapplePuller extends Entity implements IEntityAdditionalSpaw
             sh_parentEntity.setVelocity(pullVel.x, pullVel.y, pullVel.z);
 
             // Stop pulling the player
-            if(sh_parentEntity.getPositionVector().distanceTo(getOffsetPullLocation()) < sh_parentGrapple.getPullSpeed()) {
+            if(sh_parentEntity.getPositionVector().distanceTo(sh_pullLocation) < 2.5) {
                 p_pullParent = false;
                 if (!Keyboard.isKeyDown(Keyboard.KEY_SPACE) && !entityIsCloseToGround(sh_parentEntity, sh_parentGrapple.getPullSpeed() + 0.5, pullVel.y)) {
                     p_sticking = true;

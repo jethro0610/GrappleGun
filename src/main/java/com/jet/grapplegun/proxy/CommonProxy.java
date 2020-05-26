@@ -5,12 +5,9 @@ import com.jet.grapplegun.network.GrapplePacketManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -18,10 +15,12 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
-import org.lwjgl.Sys;
 
 public class CommonProxy {
-    protected static Item itemGrapple = new ItemGrapple("grapple", 20, 2, 10, new RopeColor(50, 50, 50, 50));
+    protected static Item woodGrapple = new ItemGrapple("woodgrapple", 10, 1, 12, new RopeColor(120, 120, 120, 50));
+    protected static Item stoneGrapple = new ItemGrapple("stonegrapple", 15, 1.25, 12, new RopeColor(120, 120, 120, 50));
+    protected static Item ironGrapple = new ItemGrapple("irongrapple", 20, 1.5, 11, new RopeColor(120, 120, 120, 50));
+    protected static Item diamondGrapple = new ItemGrapple("diamondgrapple", 25, 2, 8, new RopeColor(120, 120, 120, 50));
 
     public void preInit(FMLPreInitializationEvent event) { GrapplePacketManager.registerMessages(); }
 
@@ -41,7 +40,7 @@ public class CommonProxy {
     public static class CommonRegistry {
         @SubscribeEvent
         public static void registerItems(RegistryEvent.Register<Item> event){
-            event.getRegistry().registerAll(itemGrapple);
+            event.getRegistry().registerAll(woodGrapple, stoneGrapple, ironGrapple, diamondGrapple);
         }
 
         @SubscribeEvent

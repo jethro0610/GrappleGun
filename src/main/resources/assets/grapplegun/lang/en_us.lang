@@ -1,1 +1,4 @@
-item.grapple.name=Grapple
+item.woodgrapple.name=Wooden Grapple
+item.stonegrapple.name=Stone Grapple
+item.irongrapple.name=Iron Grapple
+item.diamondgrapple.name=Diamond Grapple

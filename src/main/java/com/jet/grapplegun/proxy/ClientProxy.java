@@ -55,7 +55,10 @@ public class ClientProxy extends CommonProxy {
     public static class ClientRegistry {
         @SubscribeEvent
         public static void registerItemModels(ModelRegistryEvent event) {
-            ModelLoader.setCustomModelResourceLocation(itemGrapple, 0, new ModelResourceLocation(itemGrapple.getRegistryName(), "inventory"));
+            ModelLoader.setCustomModelResourceLocation(woodGrapple, 0, new ModelResourceLocation(woodGrapple.getRegistryName(), "inventory"));
+            ModelLoader.setCustomModelResourceLocation(stoneGrapple, 0, new ModelResourceLocation(stoneGrapple.getRegistryName(), "inventory"));
+            ModelLoader.setCustomModelResourceLocation(ironGrapple, 0, new ModelResourceLocation(ironGrapple.getRegistryName(), "inventory"));
+            ModelLoader.setCustomModelResourceLocation(diamondGrapple, 0, new ModelResourceLocation(diamondGrapple.getRegistryName(), "inventory"));
         }
     }
 }
