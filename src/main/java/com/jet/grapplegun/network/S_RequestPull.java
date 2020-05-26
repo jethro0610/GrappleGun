@@ -115,11 +115,14 @@ public class S_RequestPull implements IMessage {
                     }
                 }
                 
-                if(parentStack != null && parentEntity != null && canGrapple) {
+                if(parentStack != null && parentEntity != null && canGrapple && parentStack.getItemDamage() < parentStack.getMaxDamage()) {
                     parentStack.damageItem(1, player);
                     player.getServerWorld().playSound(null, player.posX, player.posY, player.posZ, SoundHandler.GRAPPLE_FIRE, SoundCategory.MASTER, 1.0f, 1.0f);
                     EntityGrapplePuller newPuller = new EntityGrapplePuller(player.getServerWorld(), grappleHand, parentEntity, message.pullLocation, pullEntity, message.hit);
                     player.getServerWorld().spawnEntity(newPuller);
+                }
+                else if(parentStack.getItemDamage() >= parentStack.getMaxDamage()){
+                    parentStack.damageItem(1, player);
                 }
             });
             return null;
