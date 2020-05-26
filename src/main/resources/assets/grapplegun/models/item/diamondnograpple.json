@@ -1,7 +1,7 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "grapplegun:items/stonegrapple"
+    "layer0": "grapplegun:items/diamondnograpple"
   },
 
   "display": {
@@ -23,10 +23,5 @@
       "translation": [0, 0, -5],
       "scale": [0.75, 0.75, 0.75]
     }
-  },
-
-  "overrides": [
-    {"predicate": {"grapplegun:state": 0.0}, "model": "grapplegun:item/stonegrapple"},
-    {"predicate": {"grapplegun:state": 1.0}, "model": "grapplegun:item/stonenograpple"}
-  ]
+  }
 }

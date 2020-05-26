@@ -17,6 +17,8 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import javax.annotation.Nullable;
+
 public class ClientProxy extends CommonProxy {
     public static final ModelGrapple GRAPPLE_MODEL = new ModelGrapple();
     @Override

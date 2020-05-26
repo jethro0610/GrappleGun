@@ -39,7 +39,7 @@ public class CommonProxy {
     @Mod.EventBusSubscriber
     public static class CommonRegistry {
         @SubscribeEvent
-        public static void registerItems(RegistryEvent.Register<Item> event){
+        public static void registerItems(RegistryEvent.Register<Item> event) {
             event.getRegistry().registerAll(woodGrapple, stoneGrapple, ironGrapple, diamondGrapple);
         }
 

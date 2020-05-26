@@ -23,5 +23,10 @@
       "translation": [0, 0, -5],
       "scale": [0.75, 0.75, 0.75]
     }
-  }
+  },
+
+  "overrides": [
+    {"predicate": {"grapplegun:state": 0.0}, "model": "grapplegun:item/irongrapple"},
+    {"predicate": {"grapplegun:state": 1.0}, "model": "grapplegun:item/ironnograpple"}
+  ]
 }
