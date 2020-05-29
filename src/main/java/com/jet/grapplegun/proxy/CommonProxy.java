@@ -20,11 +20,11 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 
 public class CommonProxy {
-    protected static Item woodGrapple = new ItemGrapple("woodgrapple", 10, 1, 6, 30, new RopeColor(102, 68, 0, 50));
-    protected static Item stoneGrapple = new ItemGrapple("stonegrapple", 15, 1.25, 7, 20, new RopeColor(40, 40, 40, 50));
-    protected static Item ironGrapple = new ItemGrapple("irongrapple", 20, 1.5, 7, 35, new RopeColor(120, 120, 120, 50));
-    protected static Item goldGrapple = new ItemGrapple("goldgrapple", 15, 1.75, 7, 25, new RopeColor(200, 170, 70, 50));
-    protected static Item diamondGrapple = new ItemGrapple("diamondgrapple", 25, 2, 7, 40, new RopeColor(0, 102, 102, 50));
+    protected static Item woodGrapple = new ItemGrapple("woodgrapple", 10, 1, 4, 40 * 4, new RopeColor(102, 68, 0, 50));
+    protected static Item stoneGrapple = new ItemGrapple("stonegrapple", 15, 1.25, 7, 25 * 4, new RopeColor(40, 40, 40, 50));
+    protected static Item ironGrapple = new ItemGrapple("irongrapple", 20, 1.5, 7, 35 * 4, new RopeColor(120, 120, 120, 50));
+    protected static Item goldGrapple = new ItemGrapple("goldgrapple", 15, 1.75, 6, 30 * 4, new RopeColor(200, 170, 70, 50));
+    protected static Item diamondGrapple = new ItemGrapple("diamondgrapple", 25, 2, 7, 40 * 4, new RopeColor(0, 102, 102, 50));
 
     public void preInit(FMLPreInitializationEvent event) { GrapplePacketManager.registerMessages(); }
 
