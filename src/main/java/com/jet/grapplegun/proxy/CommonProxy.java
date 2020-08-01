@@ -24,7 +24,7 @@ public class CommonProxy {
     protected static Item stoneGrapple = new ItemGrapple("stonegrapple", 15, 1.25, 7, 25 * 4, new RopeColor(40, 40, 40, 50));
     protected static Item ironGrapple = new ItemGrapple("irongrapple", 20, 1.5, 7, 35 * 4, new RopeColor(120, 120, 120, 50));
     protected static Item goldGrapple = new ItemGrapple("goldgrapple", 15, 1.75, 6, 30 * 4, new RopeColor(200, 170, 70, 50));
-    protected static Item diamondGrapple = new ItemGrapple("diamondgrapple", 25, 2, 7, 40 * 4, new RopeColor(0, 102, 102, 50));
+    protected static Item diamondGrapple = new ItemGrapple("diamondgrapple", 25, 2, 7, 80 * 4, new RopeColor(0, 102, 102, 50));
 
     public void preInit(FMLPreInitializationEvent event) { GrapplePacketManager.registerMessages(); }
 
